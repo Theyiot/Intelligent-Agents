@@ -7,7 +7,7 @@ import uchicago.src.sim.space.Object2DGrid;
 /**
  * Class that implements the simulation agent for the rabbits grass simulation.
  * 
- * @author
+ * @author Shruti Goli (300136) and Théo Nikles (250624)
  */
 
 public class RabbitsGrassSimulationAgent implements Drawable {
@@ -20,32 +20,22 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	private int ID;
 	private RabbitsGrassSimulationSpace rgsSpace;
 
+	/***************
+	 * CONSTRUCTOR *
+	 ***************/
+
 	public RabbitsGrassSimulationAgent(int minLifespan, int maxLifespan) {
 		stepsToLive = (int) ((Math.random() * (maxLifespan - minLifespan)) + minLifespan);
 		IDNumber++;
 		ID = IDNumber;
 	}
 
-	public void setCarryDropSpace(RabbitsGrassSimulationSpace rgsSpace) {
-		this.rgsSpace = rgsSpace;
-	}
+	/******************
+	 * PUBLIC METHODS *
+	 ******************/
 
-	private void setVxVy() {
-		vX = vY = 0;
-		switch((int)(Math.random() * RabbitsGrassSimulationModel.POSSIBLE_DIRECTIONS)) {
-		case 0:				//EAST
-			vX = 1;
-			break;
-		case 1:				//NORTH
-			vY = -1;
-			break;
-		case 2:				//WEST
-			vX = -1;
-			break;
-		case 3: default:	//SOUTH
-			vY = 1;
-			break;
-		}
+	public void draw(SimGraphics arg0) {
+		arg0.drawHollowFastOval(Color.white);
 	}
 
 	public void step() {
@@ -69,17 +59,17 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 		return rgsSpace.moveAgentAt(x, y, newX, newY);
 	}
 
-	public void draw(SimGraphics arg0) {
-		arg0.drawHollowFastOval(Color.white);
+	/*****************************
+	 * GETTER AND SETTER METHODS *
+	 *****************************/
+
+	public void setRabbitsGrassSpace(RabbitsGrassSimulationSpace rgsSpace) {
+		this.rgsSpace = rgsSpace;
 	}
 
 	public void setXY(int newX, int newY) {
 		x = newX;
 		y = newY;
-	}
-
-	public void report() {
-		System.out.println(getID() + " at " + x + ", " + y + " has " + getStepsToLive() + " steps to live.");
 	}
 
 	public String getID() {
@@ -98,4 +88,25 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 		return y;
 	}
 
+	/*******************
+	 * PRIVATE METHODS *
+	 *******************/
+
+	private void setVxVy() {
+		vX = vY = 0;
+		switch((int)(Math.random() * RabbitsGrassSimulationModel.POSSIBLE_DIRECTIONS)) {
+		case 0:				//EAST
+			vX = 1;
+			break;
+		case 1:				//NORTH
+			vY = -1;
+			break;
+		case 2:				//WEST
+			vX = -1;
+			break;
+		case 3: default:	//SOUTH
+			vY = 1;
+			break;
+		}
+	}
 }

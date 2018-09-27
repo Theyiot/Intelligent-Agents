@@ -19,25 +19,24 @@ import uchicago.src.sim.util.SimUtilities;
  * This is the first class which needs to be setup in order to run Repast
  * simulation. It manages the entire RePast environment and the simulation.
  *
- * @author
+ * @author Shruti Goli (300136) and Théo Nikles (250624)
  */
 
 public class RabbitsGrassSimulationModel extends SimModelImpl {
 	// Default Values
-	// TODO : Best way to handle these values
 	public static final int POSSIBLE_DIRECTIONS = 4;
-	// TODO : Must be varying or not ?
 	public static final int GRASS_ENERGY = 10;
-	private static final int GRID_SIZE = 50;
-	private static final int RABBITS_NUMBER = 150;
+	private static final int GRID_SIZE = 20;
+	private static final int RABBITS_NUMBER = 50;
 	private static final int BIRTH_THRESHOLD = 30;
-	private static final int GRASS_GROWTH_RATE = 30;
+	private static final int GRASS_GROWTH_RATE = 10;
 	private static final int AGENT_MIN_LIFESPAN = 10;
 	private static final int AGENT_MAX_LIFESPAN = 20;
 
 	private int gridSize = GRID_SIZE;
 	private int rabbitsNumber = RABBITS_NUMBER;
 	private int birthThreshold = BIRTH_THRESHOLD;
+	private int grassEnergy = GRASS_ENERGY;
 	private int grassGrowthRate = GRASS_GROWTH_RATE;
 	private int initialGrass = GRASS_GROWTH_RATE;
 	private int agentMinLifespan = AGENT_MIN_LIFESPAN;
@@ -53,31 +52,15 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 	private OpenSequenceGraph amountOfGrassAndRabbitInSpace;
 
-	class RabbitsInSpace implements DataSource, Sequence {
-		public Object execute() {
-			return new Double(getSValue());
-		}
-
-		public double getSValue() {
-			return (double) agentList.size();
-		}
-	}
-
-	class GrassInSpace implements DataSource, Sequence {
-		public Object execute() {
-			return new Double(getSValue());
-		}
-
-		public double getSValue() {
-			return (double) rgsSpace.getGrassSize();
-		}
-	}
-
 	public static void main(String[] args) {
 		SimInit init = new SimInit();
 		RabbitsGrassSimulationModel model = new RabbitsGrassSimulationModel();
 		init.loadModel(model, "", false);
 	}
+
+	/********************
+	 * REQUIRED METHODS *
+	 ********************/
 
 	public void begin() {
 		buildModel();
@@ -88,85 +71,9 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		amountOfGrassAndRabbitInSpace.display();
 	}
 
-	public void buildModel() {
-		rgsSpace = new RabbitsGrassSimulationSpace(gridSize);
-		rgsSpace.spreadGrass(initialGrass);
-
-		for (int i = 0; i < rabbitsNumber; i++) {
-			addNewAgent();
-		}
-		for (int i = 0; i < agentList.size(); i++) {
-			RabbitsGrassSimulationAgent cda = (RabbitsGrassSimulationAgent) agentList.get(i);
-			cda.report();
-		}
-	}
-
-	public void buildSchedule() {
-		class RabbitsGrassSimulationStep extends BasicAction {
-			public void execute() {
-				SimUtilities.shuffle(agentList);
-				for (int i = 0; i < agentList.size(); i++) {
-					agentList.get(i).step();
-				}
-
-				reapDeadAgents();
-				int newAgents = countNewAgents();
-				for (int i = 0; i < newAgents; i++) {
-					// We don't want to add an agent if there is no place left
-					if (gridSize * gridSize > agentList.size()) {
-						addNewAgent();
-					}
-				}
-
-				// TODO : Check that it is ok to have grass under a rabbit for one step (or
-				// check why)
-				rgsSpace.spreadGrass(initialGrass);
-
-				displaySurf.updateDisplay();
-			}
-		}
-
-		schedule.scheduleActionBeginning(0, new RabbitsGrassSimulationStep());
-
-		class CarryDropCountLiving extends BasicAction {
-			public void execute() {
-				countLivingAgents();
-			}
-		}
-
-		schedule.scheduleActionAtInterval(10, new CarryDropCountLiving());
-
-	    class UpdateRabbitsInSpace extends BasicAction {
-	      public void execute(){
-	        amountOfGrassAndRabbitInSpace.step();
-	      }
-	    }
-
-	    schedule.scheduleActionAtInterval(10, new UpdateRabbitsInSpace());
-	}
-
-	public void buildDisplay() {
-		ColorMap map = new ColorMap();
-
-		map.mapColor(0, Color.black);
-		map.mapColor(1, Color.green);
-
-		Value2DDisplay displayGrass = new Value2DDisplay(rgsSpace.getCurrentGrassSpace(), map);
-
-		Object2DDisplay displayAgents = new Object2DDisplay(rgsSpace.getCurrentAgentSpace());
-		displayAgents.setObjectList(agentList);
-
-		// We decided not to make the displays probeable.
-		displaySurf.addDisplayableProbeable(displayGrass, "Grass");
-		displaySurf.addDisplayableProbeable(displayAgents, "Agents");
-
-	    amountOfGrassAndRabbitInSpace.addSequence("Rabbit In Space", new RabbitsInSpace());
-	    amountOfGrassAndRabbitInSpace.addSequence("Grass In Space", new GrassInSpace());
-	}
-
 	public String[] getInitParam() {
 		String[] initParams = { "GridSize", "RabbitsNumber", "BirthThreshold", "GrassGrowthRate", "AgentMinLifespan",
-				"AgentMaxLifespan" };
+				"AgentMaxLifespan", "GrassEnergy" };
 		return initParams;
 	}
 
@@ -188,24 +95,90 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		}
 		displaySurf = null;
 
-	    if (amountOfGrassAndRabbitInSpace != null){
-	    	amountOfGrassAndRabbitInSpace.dispose();
-	    }
-	    amountOfGrassAndRabbitInSpace = null;
+		if (amountOfGrassAndRabbitInSpace != null) {
+			amountOfGrassAndRabbitInSpace.dispose();
+		}
+		amountOfGrassAndRabbitInSpace = null;
 
 		displaySurf = new DisplaySurface(this, "Rabbits Grass Simulation Window");
 		amountOfGrassAndRabbitInSpace = new OpenSequenceGraph("Amount Of Rabbits In Space", this);
 
 		registerDisplaySurface("Rabbits Grass Simulation Window", displaySurf);
-	    this.registerMediaProducer("Plot", amountOfGrassAndRabbitInSpace);
+		this.registerMediaProducer("Plot", amountOfGrassAndRabbitInSpace);
+	}
+
+	/*******************
+	 * PRIVATE METHODS *
+	 *******************/
+
+	private void buildModel() {
+		rgsSpace = new RabbitsGrassSimulationSpace(gridSize);
+		rgsSpace.spreadGrass(initialGrass);
+
+		for (int i = 0; i < rabbitsNumber; i++) {
+			addNewAgent();
+		}
+	}
+
+	private void buildSchedule() {
+		class RabbitsGrassSimulationStep extends BasicAction {
+			public void execute() {
+				SimUtilities.shuffle(agentList);
+				for (int i = 0; i < agentList.size(); i++) {
+					agentList.get(i).step();
+				}
+
+				reapDeadAgents();
+				int newAgents = countNewAgents();
+				for (int i = 0; i < newAgents; i++) {
+					// We don't want to add an agent if there is no place left
+					if (gridSize * gridSize > agentList.size()) {
+						addNewAgent();
+					}
+				}
+
+				rgsSpace.spreadGrass(initialGrass);
+
+				displaySurf.updateDisplay();
+			}
+		}
+
+		schedule.scheduleActionBeginning(0, new RabbitsGrassSimulationStep());
+
+		class UpdateRabbitsAndGrassInSpace extends BasicAction {
+			public void execute() {
+				amountOfGrassAndRabbitInSpace.step();
+			}
+		}
+
+		schedule.scheduleActionAtInterval(10, new UpdateRabbitsAndGrassInSpace());
+	}
+
+	private void buildDisplay() {
+		ColorMap map = new ColorMap();
+
+		map.mapColor(0, Color.black);
+		map.mapColor(1, Color.green);
+
+		Value2DDisplay displayGrass = new Value2DDisplay(rgsSpace.getCurrentGrassSpace(), map);
+
+		Object2DDisplay displayAgents = new Object2DDisplay(rgsSpace.getCurrentAgentSpace());
+		displayAgents.setObjectList(agentList);
+
+		// We decided not to make the displays probeable.
+		displaySurf.addDisplayable(displayGrass, "Grass");
+		displaySurf.addDisplayable(displayAgents, "Agents");
+
+		amountOfGrassAndRabbitInSpace.addSequence("Rabbit In Space", new RabbitsInSpace());
+		amountOfGrassAndRabbitInSpace.addSequence("Grass In Space", new GrassInSpace());
 	}
 
 	private int countNewAgents() {
 		int count = 0;
-		for (int i = (agentList.size() - 1); i >= 0; i--) {
-			RabbitsGrassSimulationAgent cda = (RabbitsGrassSimulationAgent) agentList.get(i);
-			if (cda.getStepsToLive() >= birthThreshold) {
-				cda.reproduce();
+		for (int i = agentList.size() - 1; i >= 0; i--) {
+			RabbitsGrassSimulationAgent agent = (RabbitsGrassSimulationAgent) agentList.get(i);
+			if (agent.getStepsToLive() >= birthThreshold) {
+				agent.reproduce();
 				count++;
 			}
 		}
@@ -214,33 +187,22 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 	private void reapDeadAgents() {
 		for (int i = (agentList.size() - 1); i >= 0; i--) {
-			RabbitsGrassSimulationAgent cda = (RabbitsGrassSimulationAgent) agentList.get(i);
-			if (cda.getStepsToLive() < 1) {
-				rgsSpace.removeAgentAt(cda.getX(), cda.getY());
+			RabbitsGrassSimulationAgent agent = (RabbitsGrassSimulationAgent) agentList.get(i);
+			if (agent.getStepsToLive() < 1) {
+				rgsSpace.removeAgentAt(agent.getX(), agent.getY());
 				agentList.remove(i);
 			}
 		}
 	}
 
 	private void addNewAgent() {
-		RabbitsGrassSimulationAgent a = new RabbitsGrassSimulationAgent(agentMinLifespan, agentMaxLifespan);
-		agentList.add(a);
-		rgsSpace.addAgent(a);
-	}
-
-	private int countLivingAgents() {
-		int livingAgents = 0;
-		for (int i = 0; i < agentList.size(); i++) {
-			RabbitsGrassSimulationAgent cda = (RabbitsGrassSimulationAgent) agentList.get(i);
-			if (cda.getStepsToLive() > 0)
-				livingAgents++;
-		}
-
-		return livingAgents;
+		RabbitsGrassSimulationAgent agent = new RabbitsGrassSimulationAgent(agentMinLifespan, agentMaxLifespan);
+		agentList.add(agent);
+		rgsSpace.addAgent(agent);
 	}
 
 	/*****************************
-	 * * GETTER AND SETTER METHODS * *
+	 * GETTER AND SETTER METHODS *
 	 *****************************/
 
 	public int getGridSize() {
@@ -279,15 +241,47 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		return agentMaxLifespan;
 	}
 
-	public int getAgentMinLifespan() {
-		return agentMinLifespan;
-	}
-
 	public void setAgentMaxLifespan(int agentMaxLifespan) {
 		this.agentMaxLifespan = agentMaxLifespan;
 	}
 
+	public int getAgentMinLifespan() {
+		return agentMinLifespan;
+	}
+
 	public void setAgentMinLifespan(int agentMinLifespan) {
 		this.agentMinLifespan = agentMinLifespan;
+	}
+
+	public int getGrassEnergy() {
+		return grassEnergy;
+	}
+
+	public void setGrassEnergy(int grassEnergy) {
+		this.grassEnergy = grassEnergy;
+	}
+
+	/**********************
+	 * INNER CONSTRUCTORS *
+	 **********************/
+
+	class RabbitsInSpace implements DataSource, Sequence {
+		public Object execute() {
+			return new Double(getSValue());
+		}
+
+		public double getSValue() {
+			return (double) agentList.size();
+		}
+	}
+
+	class GrassInSpace implements DataSource, Sequence {
+		public Object execute() {
+			return new Double(getSValue());
+		}
+
+		public double getSValue() {
+			return (double) rgsSpace.getGrassSize();
+		}
 	}
 }
