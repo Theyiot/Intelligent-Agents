@@ -19,7 +19,9 @@ import uchicago.src.sim.util.SimUtilities;
  * This is the first class which needs to be setup in order to run Repast
  * simulation. It manages the entire RePast environment and the simulation.
  *
- * @author Shruti Goli (300136) and Théo Nikles (250624)
+ * @author Shruti Goli (300136)  
+ * @author Thï¿½o Nikles (250624)
+ * @author Amaury Combes (235400)
  */
 
 public class RabbitsGrassSimulationModel extends SimModelImpl {
@@ -197,8 +199,10 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 	private void addNewAgent() {
 		RabbitsGrassSimulationAgent agent = new RabbitsGrassSimulationAgent(agentMinLifespan, agentMaxLifespan);
-		agentList.add(agent);
-		rgsSpace.addAgent(agent);
+		boolean isAdded = rgsSpace.addAgent(agent);
+		if (isAdded) {
+			agentList.add(agent);
+		}
 	}
 
 	/*****************************
