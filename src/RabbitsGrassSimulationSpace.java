@@ -49,22 +49,27 @@ public class RabbitsGrassSimulationSpace {
 	}
 
 	public void spreadGrass(int grass) {
-		// Randomly place money in moneySpace
-		for (int i = 0; i < grass; ++i) {
+		List<List<Integer>> freeSpots = getFreeSpots();
+		
+		if(freeSpots.size() > 0) {
+			// Randomly place money in moneySpace
+			for (int i = 0; i < grass; ++i) {
+				
+				int chosenSpot = (int) (Math.random() * freeSpots.size());
+				List<Integer> freeSpot = freeSpots.get(chosenSpot);
+				int x = freeSpot.get(0);
+				int y = freeSpot.get(1);
 
-			// Choose coordinates
-			int x = (int) (Math.random() * (grassSpace.getSizeX()));
-			int y = (int) (Math.random() * (grassSpace.getSizeY()));
-
-			// Grass cannot spread if there is a rabbit on this cell
-			if (agentSpace.getObjectAt(x, y) == null) {
-				int currentAmount = ((Integer) grassSpace.getObjectAt(x, y)).intValue();
-				grassSpace.putObjectAt(x, y, new Integer(currentAmount + 1));
-			} 
-		}
+				// Grass cannot spread if there is a rabbit on this cell
+				if (agentSpace.getObjectAt(x, y) == null) {
+					int currentAmount = ((Integer) grassSpace.getObjectAt(x, y)).intValue();
+					grassSpace.putObjectAt(x, y, new Integer(currentAmount + 1));
+				} 
+			}
+		}		
 	}
-
-	public boolean addAgent(RabbitsGrassSimulationAgent agent) {
+	
+	public List<List<Integer>> getFreeSpots() {
 		List<List<Integer>> freeSpots = new ArrayList<>();
 
 		// Find free spots
@@ -78,6 +83,12 @@ public class RabbitsGrassSimulationSpace {
 				}
 			}
 		}
+		
+		return freeSpots;
+	}
+
+	public boolean addAgent(RabbitsGrassSimulationAgent agent) {
+		List<List<Integer>> freeSpots = getFreeSpots();
 		
 		if(freeSpots.size() == 0) {
 			return false;
