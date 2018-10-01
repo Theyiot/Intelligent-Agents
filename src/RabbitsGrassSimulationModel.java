@@ -224,7 +224,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 		return rabbitsNumber;
 	}
 
-	public void setNumber(int rabbitsNumber) {
+	public void setRabbitsNumber(int rabbitsNumber) {
 		this.rabbitsNumber = rabbitsNumber;
 	}
 
