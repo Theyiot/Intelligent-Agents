@@ -1,4 +1,6 @@
 import java.awt.Color;
+import java.util.HashSet;
+import java.util.Set;
 
 import uchicago.src.sim.gui.Drawable;
 import uchicago.src.sim.gui.SimGraphics;
@@ -15,8 +17,6 @@ import uchicago.src.sim.space.Object2DGrid;
 public class RabbitsGrassSimulationAgent implements Drawable {
 	private int x;
 	private int y;
-	private int vX;
-	private int vY;
 	private int stepsToLive;
 	private static int IDNumber = 0;
 	private int ID;
@@ -37,16 +37,12 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	 ******************/
 
 	public void draw(SimGraphics arg0) {
-		arg0.drawString("ȣ", Color.white);
+		arg0.drawFastCircle(Color.white);
 	}
 
 	public void step() {
-		setVxVy();
-		Object2DGrid grid = rgsSpace.getCurrentAgentSpace();
-		int newX = (x + vX + grid.getSizeX()) % grid.getSizeX();
-		int newY = (y + vY + grid.getSizeY()) % grid.getSizeY();
 		
-		tryMove(newX, newY);
+		move();
 		
 		stepsToLive += rgsSpace.eatGrassAt(x, y);
 		stepsToLive--;
@@ -56,9 +52,31 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 		//Reproduction takes half of the energy
 		stepsToLive /= 2;
 	}
+	
+	private void move() {
+		boolean foundNextPosition = false;
+		Set<Movement> bannedMoves = new HashSet<>();
 
-	private boolean tryMove(int newX, int newY) {
-		return rgsSpace.moveAgentAt(x, y, newX, newY);
+		while (!foundNextPosition) {
+			Movement movement = Movement.getRandomMoveWithout(bannedMoves);
+			
+			int xIncrement = movement.getX();
+			int yIncrement = movement.getY();
+			
+			Object2DGrid grid = rgsSpace.getCurrentAgentSpace();
+			int newX = (x + xIncrement + grid.getSizeX()) % grid.getSizeX();
+			int newY = (y + yIncrement + grid.getSizeY()) % grid.getSizeY();
+			
+			foundNextPosition = !rgsSpace.isCellOccupied(newX, newY) || rgsSpace.getAgentAt(newX, newY) == this;
+			
+			if (!foundNextPosition) {
+				bannedMoves.add(movement);
+			} else {
+				rgsSpace.moveAgentAt(x, y, newX, newY);
+				x = newX;
+				y = newY;
+			}
+		}
 	}
 
 	/*****************************
@@ -89,26 +107,5 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	public int getY() {
 		return y;
 	}
-
-	/*******************
-	 * PRIVATE METHODS *
-	 *******************/
-
-	private void setVxVy() {
-		vX = vY = 0;
-		switch((int)(Math.random() * RabbitsGrassSimulationModel.POSSIBLE_DIRECTIONS)) {
-		case 0:				//EAST
-			vX = 1;
-			break;
-		case 1:				//NORTH
-			vY = -1;
-			break;
-		case 2:				//WEST
-			vX = -1;
-			break;
-		case 3: default:	//SOUTH
-			vY = 1;
-			break;
-		}
-	}
+	
 }

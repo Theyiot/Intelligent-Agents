@@ -14,12 +14,14 @@ import uchicago.src.sim.space.Object2DGrid;
 public class RabbitsGrassSimulationSpace {
 	private Object2DGrid grassSpace;
 	private Object2DGrid agentSpace;
+	private int gridSize;
 
 	/***************
 	 * CONSTRUCTOR *
 	 ***************/
 
 	public RabbitsGrassSimulationSpace(int gridSize) {
+		this.gridSize = gridSize;
 		grassSpace = new Object2DGrid(gridSize, gridSize);
 		agentSpace = new Object2DGrid(gridSize, gridSize);
 
@@ -58,7 +60,7 @@ public class RabbitsGrassSimulationSpace {
 			if (agentSpace.getObjectAt(x, y) == null) {
 				int currentAmount = ((Integer) grassSpace.getObjectAt(x, y)).intValue();
 				grassSpace.putObjectAt(x, y, new Integer(currentAmount + 1));
-			}
+			} 
 		}
 	}
 
@@ -66,8 +68,8 @@ public class RabbitsGrassSimulationSpace {
 		List<List<Integer>> freeSpots = new ArrayList<>();
 
 		// Find free spots
-		for (int i = 0; i < agentSpace.getSizeX(); ++i) {
-			for (int j = 0; j < agentSpace.getSizeY(); ++j) {
+		for (int i = 0; i < gridSize; ++i) {
+			for (int j = 0; j < gridSize; ++j) {
 				if(!isCellOccupied(i, j)) {
 					List<Integer> freeSpot = new ArrayList<>();
 					freeSpot.add(i);
@@ -123,12 +125,13 @@ public class RabbitsGrassSimulationSpace {
 	public Object2DGrid getCurrentAgentSpace() {
 		return agentSpace;
 	}
-
-	/*******************
-	 * PRIVATE METHODS *
-	 *******************/
-
-	private boolean isCellOccupied(int x, int y) {
+	
+	public boolean isCellOccupied(int x, int y) {
 		return agentSpace.getObjectAt(x, y) != null;
 	}
+	
+	public RabbitsGrassSimulationAgent getAgentAt(int x, int y) {
+		return (RabbitsGrassSimulationAgent) agentSpace.getObjectAt(x, y);
+	}
+	
 }
