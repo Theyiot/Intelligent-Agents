@@ -48,7 +48,7 @@ public class RabbitsGrassSimulationSpace {
 
 	public void spreadGrass(int grass) {
 		// Randomly place money in moneySpace
-		for (int i = 0; i < grass; i++) {
+		for (int i = 0; i < grass; ++i) {
 
 			// Choose coordinates
 			int x = (int) (Math.random() * (grassSpace.getSizeX()));
@@ -56,8 +56,8 @@ public class RabbitsGrassSimulationSpace {
 
 			// Grass cannot spread if there is a rabbit on this cell
 			if (agentSpace.getObjectAt(x, y) == null) {
-				// We assume that if there can be at most one grass per cell
-				grassSpace.putObjectAt(x, y, new Integer(1));
+				int currentAmount = ((Integer) grassSpace.getObjectAt(x, y)).intValue();
+				grassSpace.putObjectAt(x, y, new Integer(currentAmount + 1));
 			}
 		}
 	}

@@ -28,12 +28,12 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	// Default Values
 	public static final int POSSIBLE_DIRECTIONS = 4;
 	public static final int GRASS_ENERGY = 10;
-	private static final int GRID_SIZE = 20;
-	private static final int RABBITS_NUMBER = 50;
-	private static final int BIRTH_THRESHOLD = 30;
+	private static final int GRID_SIZE = 100;
+	private static final int RABBITS_NUMBER = 10;
+	private static final int BIRTH_THRESHOLD = 150;
 	private static final int GRASS_GROWTH_RATE = 10;
-	private static final int AGENT_MIN_LIFESPAN = 10;
-	private static final int AGENT_MAX_LIFESPAN = 20;
+	private static final int AGENT_MIN_LIFESPAN = 90;
+	private static final int AGENT_MAX_LIFESPAN = 110;
 
 	private int gridSize = GRID_SIZE;
 	private int rabbitsNumber = RABBITS_NUMBER;
@@ -157,10 +157,13 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	}
 
 	private void buildDisplay() {
+		
 		ColorMap map = new ColorMap();
-
+		
 		map.mapColor(0, Color.black);
-		map.mapColor(1, Color.green);
+		for (int i = 1; i < 16; i++) {
+			map.mapColor(i, new Color(0, 127 + i*8 - 1, 0));
+		}
 
 		Value2DDisplay displayGrass = new Value2DDisplay(rgsSpace.getCurrentGrassSpace(), map);
 

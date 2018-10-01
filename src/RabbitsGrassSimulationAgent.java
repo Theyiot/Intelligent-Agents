@@ -37,7 +37,7 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	 ******************/
 
 	public void draw(SimGraphics arg0) {
-		arg0.drawHollowFastOval(Color.white);
+		arg0.drawString("ȣ", Color.white);
 	}
 
 	public void step() {
