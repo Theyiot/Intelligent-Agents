@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Set;
 
 public enum Movement {
@@ -23,23 +24,18 @@ public enum Movement {
 			return y;
 		}
 		
-		public static Movement getRandomLegalMove() {
-			int choice = (int) (Math.random() * 4);
-			
-			return Movement.values()[choice];
-		}
-		
 		public static Movement getRandomMoveWithout(Set<Movement> bannedMoves) {
 			if(bannedMoves.contains(DOWN) && bannedMoves.contains(UP) && bannedMoves.contains(LEFT) && bannedMoves.contains(RIGHT)) {
 				return STAY;
 			} else {
-				Movement choice = getRandomLegalMove();
-				
-				while(bannedMoves.contains(choice)) {
-					choice = getRandomLegalMove();
+				ArrayList<Movement> legalMoves = new ArrayList<> (4);
+				for(Movement movement : Movement.values()) {
+					if(movement != Movement.STAY && !bannedMoves.contains(movement)) {
+						legalMoves.add(movement);
+					}
 				}
 				
-				return choice;
+				return legalMoves.get((int)(Math.random() * legalMoves.size()));
 			}
 			
 		}

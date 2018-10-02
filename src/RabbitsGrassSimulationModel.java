@@ -19,28 +19,24 @@ import uchicago.src.sim.util.SimUtilities;
  * This is the first class which needs to be setup in order to run Repast
  * simulation. It manages the entire RePast environment and the simulation.
  *
- * @author Shruti Goli (300136)  
- * @author Thï¿½o Nikles (250624)
+ * @author Théo Nikles (250624)
  * @author Amaury Combes (235400)
  */
 
 public class RabbitsGrassSimulationModel extends SimModelImpl {
 	// Default Values
 	public static final int POSSIBLE_DIRECTIONS = 4;
-	public static final int GRASS_ENERGY = 1;
-	private static final int GRID_SIZE = 100;
+	private static final int GRID_SIZE = 20;
 	private static final int RABBITS_NUMBER = 10;
 	private static final int BIRTH_THRESHOLD = 150;
-	private static final int GRASS_GROWTH_RATE = 150;
+	private static final int GRASS_GROWTH_RATE = 100;
 	private static final int AGENT_MIN_LIFESPAN = 90;
 	private static final int AGENT_MAX_LIFESPAN = 110;
 
 	private int gridSize = GRID_SIZE;
 	private int rabbitsNumber = RABBITS_NUMBER;
 	private int birthThreshold = BIRTH_THRESHOLD;
-	private int grassEnergy = GRASS_ENERGY;
 	private int grassGrowthRate = GRASS_GROWTH_RATE;
-	private int initialGrass = GRASS_GROWTH_RATE;
 	private int agentMinLifespan = AGENT_MIN_LIFESPAN;
 	private int agentMaxLifespan = AGENT_MAX_LIFESPAN;
 
@@ -115,7 +111,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 	private void buildModel() {
 		rgsSpace = new RabbitsGrassSimulationSpace(gridSize);
-		rgsSpace.spreadGrass(initialGrass);
 
 		for (int i = 0; i < rabbitsNumber; i++) {
 			addNewAgent();
@@ -139,7 +134,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 					}
 				}
 
-				rgsSpace.spreadGrass(initialGrass);
+				rgsSpace.spreadGrass(grassGrowthRate);
 
 				displaySurf.updateDisplay();
 			}
@@ -258,14 +253,6 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 
 	public void setAgentMinLifespan(int agentMinLifespan) {
 		this.agentMinLifespan = agentMinLifespan;
-	}
-
-	public int getGrassEnergy() {
-		return grassEnergy;
-	}
-
-	public void setGrassEnergy(int grassEnergy) {
-		this.grassEnergy = grassEnergy;
 	}
 
 	/**********************

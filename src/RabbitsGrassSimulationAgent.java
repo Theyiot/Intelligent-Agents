@@ -9,8 +9,7 @@ import uchicago.src.sim.space.Object2DGrid;
 /**
  * Class that implements the simulation agent for the rabbits grass simulation.
  * 
- * @author Shruti Goli (300136)
- * @author Thï¿½o Nikles (250624)
+ * @author Théo Nikles (250624)
  * @author Amaury Combes (235400)
  */
 
@@ -37,7 +36,7 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	 ******************/
 
 	public void draw(SimGraphics arg0) {
-		arg0.drawFastCircle(Color.white);
+		arg0.drawFastRect(Color.white);
 	}
 
 	public void step() {

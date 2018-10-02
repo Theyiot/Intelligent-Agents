@@ -6,8 +6,7 @@ import uchicago.src.sim.space.Object2DGrid;
 /**
  * Class that implements the simulation space of the rabbits grass simulation.
  * 
- * @author Shruti Goli (300136)  
- * @author Thï¿½o Nikles (250624)
+ * @author Théo Nikles (250624)
  * @author Amaury Combes (235400)
  */
 
@@ -40,7 +39,7 @@ public class RabbitsGrassSimulationSpace {
 		int count = 0;
 		for (int y = 0; y < grassSpace.getSizeY(); y++) {
 			for (int x = 0; x < grassSpace.getSizeX(); x++) {
-				if (grassSpace.getObjectAt(x, y).equals(1)) {
+				if ((int)grassSpace.getObjectAt(x, y) > 0) {
 					count++;
 				}
 			}
@@ -52,7 +51,6 @@ public class RabbitsGrassSimulationSpace {
 		List<List<Integer>> freeSpots = getFreeSpots();
 		
 		if(freeSpots.size() > 0) {
-			// Randomly place money in moneySpace
 			for (int i = 0; i < grass; ++i) {
 				
 				int chosenSpot = (int) (Math.random() * freeSpots.size());
@@ -119,10 +117,10 @@ public class RabbitsGrassSimulationSpace {
 	}
 
 	public int eatGrassAt(int x, int y) {
-		Integer hasGrass = (Integer) grassSpace.getObjectAt(x, y);
+		Integer grassNumber = (Integer) grassSpace.getObjectAt(x, y);
 		grassSpace.putObjectAt(x, y, new Integer(0));
-		// hasGrass == 1 if the cell has grass on it, else hasGrass == 0 if not
-		return hasGrass * RabbitsGrassSimulationModel.GRASS_ENERGY;
+		// grassNumber indicates how much grass there is on the cell
+		return grassNumber;
 	}
 
 	public void removeAgentAt(int x, int y) {
