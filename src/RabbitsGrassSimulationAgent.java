@@ -9,7 +9,7 @@ import uchicago.src.sim.space.Object2DGrid;
 /**
  * Class that implements the simulation agent for the rabbits grass simulation.
  * 
- * @author Théo Nikles (250624)
+ * @author Thï¿½o Nikles (250624)
  * @author Amaury Combes (235400)
  */
 
@@ -26,7 +26,12 @@ public class RabbitsGrassSimulationAgent implements Drawable {
 	 ***************/
 
 	public RabbitsGrassSimulationAgent(int minLifespan, int maxLifespan) {
-		stepsToLive = (int) ((Math.random() * (maxLifespan - minLifespan)) + minLifespan);
+		if (maxLifespan < minLifespan) {
+			stepsToLive = minLifespan;
+		} else {
+			stepsToLive = (int) ((Math.random() * (maxLifespan - minLifespan)) + minLifespan);
+		}
+		
 		IDNumber++;
 		ID = IDNumber;
 	}

@@ -19,7 +19,7 @@ import uchicago.src.sim.util.SimUtilities;
  * This is the first class which needs to be setup in order to run Repast
  * simulation. It manages the entire RePast environment and the simulation.
  *
- * @author Théo Nikles (250624)
+ * @author Thï¿½o Nikles (250624)
  * @author Amaury Combes (235400)
  */
 
@@ -212,7 +212,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	}
 
 	public void setGridSize(int gridSize) {
-		this.gridSize = gridSize;
+		this.gridSize = Math.max(1, gridSize);
 	}
 
 	public int getRabbitsNumber() {
@@ -220,7 +220,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	}
 
 	public void setRabbitsNumber(int rabbitsNumber) {
-		this.rabbitsNumber = rabbitsNumber;
+		this.rabbitsNumber = Math.max(0, rabbitsNumber);
 	}
 
 	public int getBirthThreshold() {
@@ -228,7 +228,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	}
 
 	public void setBirthThreshold(int birthThreshold) {
-		this.birthThreshold = birthThreshold;
+		this.birthThreshold = Math.max(0, birthThreshold);
 	}
 
 	public int getGrassGrowthRate() {
@@ -236,7 +236,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	}
 
 	public void setGrassGrowthRate(int grassGrowthRate) {
-		this.grassGrowthRate = grassGrowthRate;
+		this.grassGrowthRate = Math.max(0, grassGrowthRate);
 	}
 
 	public int getAgentMaxLifespan() {
@@ -244,7 +244,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	}
 
 	public void setAgentMaxLifespan(int agentMaxLifespan) {
-		this.agentMaxLifespan = agentMaxLifespan;
+		this.agentMaxLifespan = Math.max(0, agentMaxLifespan);
 	}
 
 	public int getAgentMinLifespan() {
@@ -252,7 +252,7 @@ public class RabbitsGrassSimulationModel extends SimModelImpl {
 	}
 
 	public void setAgentMinLifespan(int agentMinLifespan) {
-		this.agentMinLifespan = agentMinLifespan;
+		this.agentMinLifespan = Math.max(0, agentMinLifespan);
 	}
 
 	/**********************
