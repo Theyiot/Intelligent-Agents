@@ -1,1 +1,7 @@
 *.class
+/bin/
+
+*.class
+
+*.DS_Store
+*.jar
