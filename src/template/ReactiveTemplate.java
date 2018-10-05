@@ -1,7 +1,10 @@
 package template;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.Map;
+import java.util.HashMap;
 
 import logist.agent.Agent;
 import logist.behavior.ReactiveBehavior;
@@ -33,56 +36,25 @@ public class ReactiveTemplate implements ReactiveBehavior {
 				0.95);
 		
 		cities = topology.cities();
-		int citiesNumber = cities.size(), citiesTimesTwo = citiesNumber * 2;
-		rewards = new Double[citiesTimesTwo][citiesTimesTwo];
-		states = new State[citiesTimesTwo];
+		List<State> states = new ArrayList<>();
+		List<StateAction> actions = new ArrayList<>();
 		
-		//Populating the tables
-		for(int y = 0 ; y < citiesTimesTwo ; y++) {
-			for(int x = 0 ; x < citiesTimesTwo ; x++) {
-				City cityX = cities.get(x % citiesNumber), cityY = cities.get(y % citiesNumber);
-				
-				//Populating reward table
-				if (y < citiesNumber) {
-					if(x != y && cityX.hasNeighbor(cityY)) rewards[y][x] = - cityX.distanceTo(cityY);
-					else rewards[y][x] = null;
-				} else {
-					if(x < citiesNumber || x == y) rewards[y][x] = null;
-					else rewards[y][x] = td.reward(cityX, cityY) - cityX.distanceTo(cityY);
-				}
-				
-				//Populating transition table
-				for(int i = 0 ; i < citiesNumber ; i++) {
-					for(ActionType type : ActionType.values()) {
-						states[2 * i + type.ordinal()] = new State(cities.get(i).name, topology, type);
-					}
-				}
-			}
+		// Create all states and actions
+		for(City city: cities) {
+			
+			// Create states
+			states.add(new EmptyState(city, topology, td));
+			states.addAll(TaskState.generateTaskStates(city, topology, td));
+			
+			// Create actions
+			actions.add(new StateAction(city, ActionType.MOVE));
+			actions.add(new StateAction(city, ActionType.DELIVER));
+			
 		}
 		
-		double gamma = 1;
-		double qPred = 0;
-		double q = Double.MIN_VALUE;
-		//Finding the best way, for every state
-		while(Math.abs(q - qPred) > 1e-10) {
-			qPred = q;
-			for(int s = 0 ; s < states.length ; s++) {
-				State state = states[s];
-				for(int c = 0 ; c < citiesNumber ; c++) {
-					City city = cities.get(c);
-					
-					//We skip going through the same city once again
-					if(!city.name.equals(state.getName())) {
-						for(ActionType type : ActionType.values()) {
-							StateAction action = new StateAction(city, type);
-							double val = rewards[c * (type.ordinal() + 1)][s * (state.getType().ordinal() + 1)];
-							val += gamma * T(null, action, state) * V(null);
-							if(val > q) q = val;
-						}
-					}
-				}
-			}
-		}
+		// Value iteration algorithm
+		ValueIteration valueIterationAlgo = new ValueIteration(states, actions, 1e-10, discount);
+		states = valueIterationAlgo.valueIteration();
 		
 		this.random = new Random();
 		this.pPickup = discount;
