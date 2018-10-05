@@ -1,45 +1,113 @@
 package template;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
-import static template.ActionType.MOVE;
-import static template.ActionType.DELIVER;
+import static template.StateType.*;
 
-public class State {
-	private final String name;
-	private final Topology topology;
-	private final ActionType type;
 
-	public State(String name, Topology topology, ActionType type) {
-		this.name = name;
+public abstract class State {
+	protected final Topology topology;
+	protected final TaskDistribution td; 
+	private final StateType type;
+	private double value = 0;
+	private StateAction bestAction = null;
+
+	public State(Topology topology, TaskDistribution td, StateType type) {
 		this.topology = topology;
+		this.td = td;
 		this.type = type;
 	}
 	
-	public State[] transition(StateAction action) {
+	abstract public double reward(StateAction action);
+	
+	abstract public boolean isLegal(StateAction action);
+	
+	abstract public City getStateLocation();
+	
+	public Tuple<EmptyState, List<TaskState>> transition(StateAction action) {
+		if (!isLegal(action)) {
+			throw new IllegalStateException("Illegal action " + action + " for current state " + this);
+		}
+
 		City destination = action.destination();
-		if (name.equals(destination.name) || type == MOVE && action.type() == DELIVER) {
-			throw new IllegalStateException("Cannot move from one state to the same");
-		}
-		State[] transitions = new State[2];
-		transitions[0] = new State(destination.name, topology, MOVE);
-		if (type != MOVE) {
-			transitions[1] = new State(destination.name, topology, DELIVER);
-		}
+
+		EmptyState achievableEmptyState = new EmptyState(destination, topology, td);
+		List<TaskState> newTaskStates = TaskState.generateTaskStates(destination, topology, td);
 		
-		return transitions;
+		return new Tuple<EmptyState, List<TaskState>>(achievableEmptyState, newTaskStates);
 	}
 	
-	public ActionType getType() {
+	public double T(StateAction action, State otherState) {
+		if(!isLegal(action)) {
+			return 0;
+		}
+		
+		List<TaskState> achievableTaskStates = otherState.transition(action).getRight();
+		
+		if(otherState.getType() == EMPTY) {
+			
+			double probability = 1;
+			
+			for (TaskState state: achievableTaskStates) {
+				probability *= (1 - td.probability(state.getFromCity(), state.getToCity()));
+			}
+			
+			return probability;
+			
+		} else if (otherState.getType() == NON_EMPTY) {
+			
+		}
+	}
+	
+	/*public double T(StateAction action, State otherState) {
+		if (!isLegal(action)) {
+			return 0;
+		}
+		
+		if ()
+		
+		City nextCity = otherState.getStateLocation();
+		
+		List<City> cities = topology.cities();
+		
+		double proba = 1;
+		
+		for(City city: cities) {
+			proba *= (1 - td.probability(otherState.getCity(), city));
+		}
+		
+		if (otherState.getType() == EMPTY) {
+			return proba;
+		} else if (otherState.getType() == NON_EMPTY) {
+			return 1 - proba;
+		} else {
+			throw new IllegalStateException();
+		}
+		
+	}*/
+	
+	public StateType getType() {
 		return type;
 	}
 	
-	public String getName() {
-		return name;
+	public double V() {
+		return value;
 	}
 	
-	@Override
-	public String toString() {
-		return "In " + name + type.toString();
+	public void setV(double newValue) {
+		this.value = newValue;
 	}
+	
+	public StateAction getBestAction() {
+		return bestAction;
+	}
+	
+	public void setBestAction(StateAction newBestAction) {
+		this.bestAction = newBestAction;
+	}
+
 }
