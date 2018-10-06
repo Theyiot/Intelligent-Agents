@@ -47,12 +47,13 @@ public final class ValueIteration {
 		StateAction bestAction = null;
 		
 		for(StateAction action: actions) {
-			
-			double qSA = computeQSA(state, action);
-			
-			if (qSA > maxQSA) {
-				maxQSA = qSA;
-				bestAction = action;
+			if (state.isLegal(action)) {
+				double qSA = computeQSA(state, action);
+				
+				if (qSA > maxQSA) {
+					maxQSA = qSA;
+					bestAction = action;
+				}
 			}
 		}
 		

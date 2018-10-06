@@ -4,6 +4,7 @@ import static template.StateType.EMPTY;
 import static template.StateType.NON_EMPTY;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
@@ -47,7 +48,7 @@ public abstract class State {
 			return 0;
 		}
 		
-		List<TaskState> achievableTaskStates = otherState.transition(action).getRight();
+		List<TaskState> achievableTaskStates = this.transition(action).getRight();
 		
 		if(otherState.getType() == EMPTY) {
 			
@@ -61,8 +62,37 @@ public abstract class State {
 			
 		} else if (otherState.getType() == NON_EMPTY) {
 			
+			double upperPart = 1;
+			double downPart = 0;
+			
+			// Compute up part
+			for(TaskState state: achievableTaskStates) {
+				
+				if (state.equals(otherState)) {
+					upperPart *= td.probability(state.getFromCity(), state.getToCity());
+				} else {
+					upperPart *=  (1 - td.probability(state.getFromCity(), state.getToCity()));
+				}	
+			}
+			
+			// Compute down part
+			for(TaskState success: achievableTaskStates) {
+				List<TaskState> fails = new ArrayList<>(achievableTaskStates);
+				fails.remove(success);
+				Double currentProba = td.probability(success.getFromCity(), success.getToCity());
+				
+				for(TaskState fail: fails) {
+					currentProba *= (1 - td.probability(fail.getFromCity(), fail.getToCity()));
+				}
+				
+				downPart += currentProba;
+			}
+			
+			return upperPart / downPart;
+			
+		} else {
+			throw new IllegalStateException("Illegal branching");
 		}
-		return 0;
 	}
 	
 	public StateType getType() {
