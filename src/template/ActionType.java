@@ -5,7 +5,13 @@ public enum ActionType {
 	
 	@Override
 	public String toString() {
-		if(this == MOVE) return ", moving";
-		else return ", delivering";
+		switch (this) {
+		case MOVE:
+			return ", moving";
+		case DELIVER:
+			return ", delivering";
+		default:
+			throw new IllegalStateException("Illegal Action Type");
+		}
 	}
 }

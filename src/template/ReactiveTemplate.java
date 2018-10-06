@@ -1,10 +1,8 @@
 package template;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.Map;
-import java.util.HashMap;
 
 import logist.agent.Agent;
 import logist.behavior.ReactiveBehavior;
@@ -24,8 +22,6 @@ public class ReactiveTemplate implements ReactiveBehavior {
 	private int numActions;
 	private Agent myAgent;
 	private List<City> cities;
-	private Double[][] rewards;
-	private State[] states;
 
 	@Override
 	public void setup(Topology topology, TaskDistribution td, Agent agent) {
@@ -79,13 +75,5 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		numActions++;
 		
 		return action;
-	}
-	
-	private double T(State possibleState, StateAction action, State actualState) {
-		return 0;
-	}
-	
-	private double V(State possibleState) {
-		return 0;
 	}
 }

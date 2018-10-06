@@ -1,7 +1,5 @@
 package template;
 
-import java.lang.Iterable;
-
 public class Tuple<X, Y> {
 	private final X x;
 	private final Y y;
