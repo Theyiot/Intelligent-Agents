@@ -41,7 +41,7 @@ public class TaskState extends State {
 		if (action.type() == MOVE) {
 			return fromCity.distanceTo(action.destination());
 		} else if (action.type() == DELIVER) {
-			return super.td.reward(fromCity, toCity);
+			return super.td.reward(fromCity, toCity) - fromCity.distanceTo(action.destination());
 		} else {
 			throw new IllegalStateException("Illegal branching");
 		}
