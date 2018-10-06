@@ -57,7 +57,9 @@ public class TaskState extends State {
 		List<TaskState> newStates = new ArrayList<>();
 		
 		for(City cityPrime: topology.cities()) {
-			newStates.add(new TaskState(city, cityPrime, topology, td));
+			if (!cityPrime.equals(city)) {
+				newStates.add(new TaskState(city, cityPrime, topology, td));
+			}
 		}
 		
 		return newStates;	
