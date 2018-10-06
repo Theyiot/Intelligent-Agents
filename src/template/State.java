@@ -63,33 +63,6 @@ public abstract class State {
 		}
 	}
 	
-	/*public double T(StateAction action, State otherState) {
-		if (!isLegal(action)) {
-			return 0;
-		}
-		
-		if ()
-		
-		City nextCity = otherState.getStateLocation();
-		
-		List<City> cities = topology.cities();
-		
-		double proba = 1;
-		
-		for(City city: cities) {
-			proba *= (1 - td.probability(otherState.getCity(), city));
-		}
-		
-		if (otherState.getType() == EMPTY) {
-			return proba;
-		} else if (otherState.getType() == NON_EMPTY) {
-			return 1 - proba;
-		} else {
-			throw new IllegalStateException();
-		}
-		
-	}*/
-	
 	public StateType getType() {
 		return type;
 	}
