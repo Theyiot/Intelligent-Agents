@@ -1,6 +1,5 @@
 package template;
 
 public enum StateType {
-	NON_EMPTY, EMPTY;
-	
+	NON_EMPTY, EMPTY
 }

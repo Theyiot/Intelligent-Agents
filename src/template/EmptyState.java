@@ -3,10 +3,9 @@ package template;
 import static template.ActionType.DELIVER;
 import static template.ActionType.MOVE;
 import static template.StateType.EMPTY;
-import static template.StateType.NON_EMPTY;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
@@ -33,10 +32,10 @@ public class EmptyState extends State {
 	
 	@Override
 	public double reward(StateAction action) {
-		if(!isLegal(action)) {
-			throw new IllegalStateException("Illegal action " + action + " for current state " + this);
+		if(isLegal(action)) {
+			return stateCity.distanceTo(action.destination());
 		} else {
-			return stateCity.distanceTo(action.destination());	
+			throw new IllegalStateException("Illegal action " + action + " for current state " + this);	
 		}
 	}
 	

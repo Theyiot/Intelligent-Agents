@@ -1,12 +1,13 @@
 package template;
 
-import java.util.ArrayList;
+import static template.StateType.EMPTY;
+import static template.StateType.NON_EMPTY;
+
 import java.util.List;
 
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
-import static template.StateType.*;
 
 
 public abstract class State {
@@ -22,11 +23,11 @@ public abstract class State {
 		this.type = type;
 	}
 	
-	abstract public double reward(StateAction action);
+	public abstract double reward(StateAction action);
 	
-	abstract public boolean isLegal(StateAction action);
+	public abstract boolean isLegal(StateAction action);
 	
-	abstract public City getStateLocation();
+	public abstract City getStateLocation();
 	
 	public Tuple<EmptyState, List<TaskState>> transition(StateAction action) {
 		if (!isLegal(action)) {
@@ -61,6 +62,7 @@ public abstract class State {
 		} else if (otherState.getType() == NON_EMPTY) {
 			
 		}
+		return 0;
 	}
 	
 	public StateType getType() {

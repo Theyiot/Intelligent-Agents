@@ -21,6 +21,6 @@ public class StateAction {
 	
 	@Override
 	public String toString() {
-		return "To " + destination + type.toString();
+		return "To " + destination + " " + type.toString();
 	}
 }

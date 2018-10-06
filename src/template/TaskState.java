@@ -52,7 +52,7 @@ public class TaskState extends State {
 		return fromCity;
 	}
 	
-	static public List<TaskState> generateTaskStates(City city, Topology topology, TaskDistribution td) {
+	public static List<TaskState> generateTaskStates(City city, Topology topology, TaskDistribution td) {
 		
 		List<TaskState> newStates = new ArrayList<>();
 		
