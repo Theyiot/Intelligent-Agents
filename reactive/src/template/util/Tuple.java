@@ -1,4 +1,4 @@
-package template;
+package template.util;
 
 public class Tuple<X, Y> {
 	private final X x;

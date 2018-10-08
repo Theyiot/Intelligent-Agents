@@ -1,8 +1,8 @@
-package template;
+package template.world_representation.state;
 
-import static template.ActionType.DELIVER;
-import static template.ActionType.MOVE;
-import static template.StateType.EMPTY;
+import static template.world_representation.action.ActionType.DELIVER;
+import static template.world_representation.action.ActionType.MOVE;
+import static template.world_representation.state.StateType.EMPTY;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,7 @@ import java.util.List;
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import template.world_representation.action.StateAction;
 
 public class EmptyState extends State {
 	private City stateCity;

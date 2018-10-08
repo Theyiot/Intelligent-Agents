@@ -1,14 +1,17 @@
-package template;
-
-import static template.StateType.EMPTY;
-import static template.StateType.NON_EMPTY;
+package template.world_representation.state;
 
 import java.util.List;
+
+import static template.world_representation.state.StateType.EMPTY;
+import static template.world_representation.state.StateType.NON_EMPTY;
+
 import java.util.ArrayList;
 
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import template.util.Tuple;
+import template.world_representation.action.StateAction;
 
 
 public abstract class State {

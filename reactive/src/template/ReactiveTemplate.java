@@ -16,9 +16,15 @@ import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import template.algorithm.ValueIteration;
+import template.world_representation.action.ActionType;
+import template.world_representation.action.StateAction;
+import template.world_representation.state.EmptyState;
+import template.world_representation.state.State;
+import template.world_representation.state.TaskState;
 
-import static template.StateType.*;
-import static template.ActionType.*;
+import static template.world_representation.action.ActionType.*;
+import static template.world_representation.state.StateType.*;
 
 public class ReactiveTemplate implements ReactiveBehavior {
 

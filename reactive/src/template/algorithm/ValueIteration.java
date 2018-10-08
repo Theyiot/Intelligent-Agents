@@ -1,8 +1,15 @@
-package template;
+package template.algorithm;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import template.util.Tuple;
+import template.world_representation.action.StateAction;
+import template.world_representation.state.EmptyState;
+import template.world_representation.state.State;
+import template.world_representation.state.TaskState;
+
 import java.util.HashMap;
 
 public final class ValueIteration {

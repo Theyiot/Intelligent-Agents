@@ -1,15 +1,16 @@
-package template;
+package template.world_representation.state;
 
 import java.util.List;
 import java.util.ArrayList;
 
-import static template.ActionType.MOVE;
-import static template.ActionType.DELIVER;
-import static template.StateType.*;
+import static template.world_representation.action.ActionType.DELIVER;
+import static template.world_representation.action.ActionType.MOVE;
+import static template.world_representation.state.StateType.*;
 
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import template.world_representation.action.StateAction;
 
 public class TaskState extends State {
 	private City fromCity;
@@ -26,7 +27,7 @@ public class TaskState extends State {
 		if (action.type() == MOVE) {
 			return fromCity.hasNeighbor(action.destination());
 		} else if (action.type() == DELIVER) {
-			return toCity.equals(action.destination());
+			return true;
 		} else {
 			throw new IllegalStateException("Illegal branching");
 		}
