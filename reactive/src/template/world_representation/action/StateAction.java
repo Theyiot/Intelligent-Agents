@@ -2,17 +2,11 @@ package template.world_representation.action;
 
 import logist.topology.Topology.City;
 
-public class StateAction {
-	private final City destination;
+abstract public class StateAction {
 	private final ActionType type;
 	
-	public StateAction(City destination, ActionType type) {
-		this.destination = destination;
+	public StateAction(ActionType type) {
 		this.type = type;
-	}
-	
-	public City destination() {
-		return destination;
 	}
 	
 	public ActionType type() {
@@ -21,6 +15,6 @@ public class StateAction {
 	
 	@Override
 	public String toString() {
-		return "To " + destination + " " + type.toString();
+		return "Action: " + type.toString();
 	}
 }

@@ -4,6 +4,8 @@ import java.util.List;
 
 import static template.world_representation.state.StateType.EMPTY;
 import static template.world_representation.state.StateType.NON_EMPTY;
+import static template.world_representation.action.ActionType.DELIVER;
+import static template.world_representation.action.ActionType.MOVE;
 
 import java.util.ArrayList;
 
@@ -33,18 +35,7 @@ public abstract class State {
 	
 	public abstract City getStateLocation();
 	
-	public Tuple<EmptyState, List<TaskState>> transition(StateAction action) {
-		if (!isLegal(action)) {
-			throw new IllegalStateException("Illegal action " + action + " for current state " + this);
-		}
-
-		City destination = action.destination();
-
-		EmptyState achievableEmptyState = new EmptyState(destination, topology, td);
-		List<TaskState> newTaskStates = TaskState.generateTaskStates(destination, topology, td);
-		
-		return new Tuple<EmptyState, List<TaskState>>(achievableEmptyState, newTaskStates);
-	}
+	public abstract Tuple<EmptyState, List<TaskState>> transition(StateAction action);
 	
 	public double T(StateAction action, State otherState) {
 		if(!isLegal(action)) {

@@ -4,6 +4,9 @@ import static template.world_representation.action.ActionType.DELIVER;
 import static template.world_representation.action.ActionType.MOVE;
 import static template.world_representation.state.StateType.EMPTY;
 
+import template.util.Tuple;
+import template.world_representation.action.MoveAction;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +26,8 @@ public class EmptyState extends State {
 	@Override
 	public boolean isLegal(StateAction action) {
 		if (action.type() == MOVE) {
-			return stateCity.hasNeighbor(action.destination());
+			MoveAction mAction = (MoveAction) action;
+			return stateCity.hasNeighbor(mAction.getDestination());
 		} else if (action.type() == DELIVER) {
 			return false;
 		} else {
@@ -32,9 +36,24 @@ public class EmptyState extends State {
 	}
 	
 	@Override
+	public Tuple<EmptyState, List<TaskState>> transition(StateAction action) {
+		if (!isLegal(action)) {
+			throw new IllegalStateException("Illegal action " + action + " for current state " + this);
+		}
+		
+		City destination = ((MoveAction) action).getDestination();
+		
+		EmptyState achievableEmptyState = new EmptyState(destination, topology, td);
+		List<TaskState> newTaskStates = TaskState.generateTaskStates(destination, topology, td);
+		
+		return new Tuple<EmptyState, List<TaskState>>(achievableEmptyState, newTaskStates);
+	}
+	
+	@Override
 	public double reward(StateAction action) {
 		if(isLegal(action)) {
-			return stateCity.distanceTo(action.destination());
+			MoveAction mAction = (MoveAction) action;
+			return stateCity.distanceTo(mAction.getDestination());
 		} else {
 			throw new IllegalStateException("Illegal action " + action + " for current state " + this);	
 		}

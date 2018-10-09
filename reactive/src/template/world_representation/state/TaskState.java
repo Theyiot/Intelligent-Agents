@@ -10,6 +10,8 @@ import static template.world_representation.state.StateType.*;
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import template.util.Tuple;
+import template.world_representation.action.MoveAction;
 import template.world_representation.action.StateAction;
 
 public class TaskState extends State {
@@ -25,12 +27,33 @@ public class TaskState extends State {
 	@Override
 	public boolean isLegal(StateAction action) {
 		if (action.type() == MOVE) {
-			return fromCity.hasNeighbor(action.destination());
+			MoveAction mAction = (MoveAction) action;
+			return fromCity.hasNeighbor(mAction.getDestination());
 		} else if (action.type() == DELIVER) {
 			return true;
 		} else {
 			throw new IllegalStateException("Illegal branching");
 		}
+	}
+	
+	@Override
+	public Tuple<EmptyState, List<TaskState>> transition(StateAction action) {
+		if (!isLegal(action)) {
+			throw new IllegalStateException("Illegal action " + action + " for current state " + this);
+		}
+		
+		City destination = null;
+		
+		if (action.type() == MOVE) {
+			destination = ((MoveAction) action).getDestination();
+		} else if (action.type() == DELIVER) {
+			destination = toCity;
+		}
+		
+		EmptyState achievableEmptyState = new EmptyState(destination, topology, td);
+		List<TaskState> newTaskStates = TaskState.generateTaskStates(destination, topology, td);
+		
+		return new Tuple<EmptyState, List<TaskState>>(achievableEmptyState, newTaskStates);
 	}
 	
 	@Override
@@ -40,9 +63,10 @@ public class TaskState extends State {
 		}
 		
 		if (action.type() == MOVE) {
-			return fromCity.distanceTo(action.destination());
+			MoveAction mAction = (MoveAction) action;
+			return fromCity.distanceTo(mAction.getDestination());
 		} else if (action.type() == DELIVER) {
-			return super.td.reward(fromCity, toCity) - fromCity.distanceTo(action.destination());
+			return super.td.reward(fromCity, toCity) - fromCity.distanceTo(toCity);
 		} else {
 			throw new IllegalStateException("Illegal branching");
 		}

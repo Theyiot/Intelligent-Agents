@@ -17,7 +17,6 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 import template.algorithm.ValueIteration;
-import template.world_representation.action.ActionType;
 import template.world_representation.action.StateAction;
 import template.world_representation.state.EmptyState;
 import template.world_representation.state.State;
@@ -25,6 +24,8 @@ import template.world_representation.state.TaskState;
 
 import static template.world_representation.action.ActionType.*;
 import static template.world_representation.state.StateType.*;
+import template.world_representation.action.MoveAction;
+import template.world_representation.action.DeliverAction;
 
 public class ReactiveTemplate implements ReactiveBehavior {
 
@@ -57,10 +58,10 @@ public class ReactiveTemplate implements ReactiveBehavior {
 			states.addAll(TaskState.generateTaskStates(city, topology, td));
 			
 			// Create actions
-			actions.add(new StateAction(city, ActionType.MOVE));
-			actions.add(new StateAction(city, ActionType.DELIVER));
-			
+			actions.add(new MoveAction(city));	
 		}
+		
+		actions.add(new DeliverAction());
 		
 		// Value iteration algorithm
 		ValueIteration valueIterationAlgo = new ValueIteration(states, actions, 1e-10, discount);
@@ -116,8 +117,11 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		
 		if (bestAction.type() == DELIVER) {
 			action = new Pickup(availableTask);
+		} else if (bestAction.type() == MOVE) {
+			MoveAction mAction = (MoveAction) bestAction;
+			action = new Move(mAction.getDestination());
 		} else {
-			action = new Move(bestAction.destination());
+			throw new IllegalStateException();
 		}
 		
 		if (numActions >= 1) {
