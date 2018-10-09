@@ -42,48 +42,11 @@ public abstract class State {
 			return 0;
 		}
 		
-		List<TaskState> achievableTaskStates = this.transition(action).getRight();
-		
 		if(otherState.getType() == EMPTY) {
-			
-			double probability = 1;
-			
-			for (TaskState state: achievableTaskStates) {
-				probability *= (1 - td.probability(state.getFromCity(), state.getToCity()));
-			}
-			
-			return probability;
-			
+			return td.probability(otherState.getStateLocation(), null);			
 		} else if (otherState.getType() == NON_EMPTY) {
-			
-			double upperPart = 1;
-			double downPart = 0;
-			
-			// Compute up part
-			for(TaskState state: achievableTaskStates) {
-				
-				if (state.equals(otherState)) {
-					upperPart *= td.probability(state.getFromCity(), state.getToCity());
-				} else {
-					upperPart *=  (1 - td.probability(state.getFromCity(), state.getToCity()));
-				}	
-			}
-			
-			// Compute down part
-			for(TaskState success: achievableTaskStates) {
-				List<TaskState> fails = new ArrayList<>(achievableTaskStates);
-				fails.remove(success);
-				Double currentProba = td.probability(success.getFromCity(), success.getToCity());
-				
-				for(TaskState fail: fails) {
-					currentProba *= (1 - td.probability(fail.getFromCity(), fail.getToCity()));
-				}
-				
-				downPart += currentProba;
-			}
-			
-			return upperPart / downPart;
-			
+			TaskState tState = (TaskState) otherState;
+			return td.probability(tState.getFromCity(), tState.getToCity());
 		} else {
 			throw new IllegalStateException("Illegal branching");
 		}
