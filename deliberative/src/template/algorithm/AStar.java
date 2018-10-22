@@ -9,6 +9,7 @@ import java.util.Set;
 
 import template.algorithm.Path.PathBuilder;
 import template.utils.Tuple;
+import template.world_representation.state.State;
 
 public class AStar<E extends Edge, N extends Node> {
 	
@@ -34,11 +35,11 @@ public class AStar<E extends Edge, N extends Node> {
 				ExplorationNode<E, N> goalNode = currentExplorationNode;
 				candidatePaths.add(goalNode.pathFromRoot());
 			} else if (!visitedNodes.containsKey(currentExplorationNode.getCurrentNode()) ||
-					visitedNodes.get(currentExplorationNode.currentNode).f() > currentExplorationNode.f()) {
+					visitedNodes.get(currentExplorationNode.currentNode).getCost() > currentExplorationNode.getCost()) {
 				visitedNodes.put(currentExplorationNode.getCurrentNode(), currentExplorationNode);
 				Set<ExplorationNode<E, N>> nextNodes = currentExplorationNode.next();
 				nonExploredNodes.addAll(nextNodes);
-				nonExploredNodes.sort((x, y) -> x.f() < y.f() ? -1 : x.f() == y.f() ? 0 : 1);
+				nonExploredNodes.sort((x, y) -> x.getCostH() < y.getCostH() ? -1 : x.getCostH() == y.getCostH() ? 0 : 1);
 			}
 		}
 		
@@ -60,6 +61,7 @@ public class AStar<E extends Edge, N extends Node> {
 		private final E linkEdge;
 		private final Explorer<E, N> explorer;
 		private final int depth;
+		private final double cost;
 		
 		public ExplorationNode(ExplorationNode<E, N> parentNode, N currentNode, E linkEdge, Explorer<E, N> explorer, int depth) {
 			this.parentNode = parentNode;
@@ -67,18 +69,19 @@ public class AStar<E extends Edge, N extends Node> {
 			this.linkEdge = linkEdge;
 			this.explorer = explorer;
 			this.depth = depth;
+			this.cost = (parentNode == null ? 0 : parentNode.getCost()) + (linkEdge == null ? 0 : linkEdge.getWeight());
 		}
 		
-		public double f() {
-			return g() + h();
+		public double getCostH() {
+			return cost + h();
 		}
 		
-		public double g() {
-			return linkEdge.getWeight();
+		public double getCost() {
+			return cost;
 		}
 		
 		public double h() {
-			return 0;
+			return ((State)currentNode).getLocation().distanceTo(((State)currentNode).getLocation());
 		}
 		
 		public Set<ExplorationNode<E, N>> next() {

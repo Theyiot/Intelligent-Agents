@@ -13,6 +13,7 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import template.algorithm.AStar;
 import template.algorithm.BFS;
 import template.algorithm.Path;
 import template.logist_interface.PathToPlanConverter;
@@ -59,25 +60,36 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 	@Override
 	public Plan plan(Vehicle vehicle, TaskSet tasks) {
 		Plan plan;
+		State currentState;
+		Transitioner transitioner;
+		Path<Action, State> goalPath;
 
 		// Compute the plan with the selected algorithm.
 		switch (algorithm) {
 		case ASTAR:
-			// ...
-			plan = naivePlan(vehicle, tasks);
-			break;
-		case BFS:
 			
-			State currentState = new State(tasks.clone(),  TaskSet.create(new Task[0]), vehicle.getCurrentCity(), vehicle.capacity());
+			currentState = new State(tasks.clone(),  TaskSet.create(new Task[0]), vehicle.getCurrentCity(), vehicle.capacity());
 			
-			Transitioner transitioner = new Transitioner();
+			transitioner = new Transitioner();
+					
+			AStar<Action, State> aStarResolver = new AStar<>(transitioner, 100);
 			
-			BFS<Action, State> planResolver = new BFS<>(transitioner);
-			
-			Path<Action, State> goalPath = planResolver.getGoalPathFrom(currentState);
+			goalPath = aStarResolver.getGoalPathFrom(currentState);
 			
 			plan = PathToPlanConverter.convert(goalPath);
 			
+			break;
+		case BFS:
+			
+			currentState = new State(tasks.clone(),  TaskSet.create(new Task[0]), vehicle.getCurrentCity(), vehicle.capacity());
+			
+			transitioner = new Transitioner();
+			
+			BFS<Action, State> planResolver = new BFS<>(transitioner);
+			
+			goalPath = planResolver.getGoalPathFrom(currentState);
+			
+			plan = PathToPlanConverter.convert(goalPath);
 			
 			break;
 		default:

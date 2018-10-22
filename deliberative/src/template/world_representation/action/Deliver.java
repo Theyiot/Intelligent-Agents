@@ -23,7 +23,7 @@ public class Deliver extends Action {
 
 	@Override
 	public Double getWeight() {
-		return (double) task.reward;
+		return (double) task.weight;
 	}
 
 	@Override
