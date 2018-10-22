@@ -72,7 +72,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 			
 			transitioner = new Transitioner();
 					
-			AStar<Action, State> aStarResolver = new AStar<>(transitioner, 100);
+			AStar<Action, State> aStarResolver = new AStar<>(transitioner);
 			
 			goalPath = aStarResolver.getGoalPathFrom(currentState);
 			

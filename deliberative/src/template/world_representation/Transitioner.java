@@ -62,6 +62,11 @@ public class Transitioner implements Explorer<Action, State> {
 		return transitions;
 	}
 	
+	@Override
+	public double h(State node) {
+		return 0;
+	}
+	
 	public Set<Action> getLegalActionsAt(State state) {
 		Set<Action> legalMoves = getLegalMovesAt(state);
 		Set<Action> legalPickups = getLegalPickupsAt(state);
@@ -92,7 +97,7 @@ public class Transitioner implements Explorer<Action, State> {
 
 		if (location.hasNeighbor(destination)) {
 			State newState = new State(state, destination);
-			Double reward = location.distanceTo(destination);
+			Double reward = - location.distanceTo(destination);
 			return new Tuple<Double, State>(reward, newState);
 		} else {
 			throw new IllegalTransitionException(
@@ -126,7 +131,12 @@ public class Transitioner implements Explorer<Action, State> {
 		if (state.getHoldingTasks().contains(task) && location.equals(taskDeliveryLocation)) {
 			State newState = new State(state, task, ActionType.DELIVER);
 			Double reward = (double) task.reward;
-			return new Tuple<Double, State>(reward, newState);
+			
+			// This line to maximise the reward
+			//return new Tuple<Double, State>(reward, newState);
+			
+			// This line to minimize the cost
+			return new Tuple<Double, State>(0.0, newState);
 		} else {
 			throw new IllegalTransitionException(
 					"Tried to perform illegal delivery " + task + " at location " + state.getLocation());

@@ -45,30 +45,31 @@ public final class Path<E extends Edge, N extends Node> {
 	public static final class PathBuilder<E extends Edge, N extends Node> {
 		private final List<N> nodes;
 		private final List<E> edges;
+		private double weightStack;
 		
 		public PathBuilder() {
 			nodes = new ArrayList<>();
 			edges = new ArrayList<>();
+			weightStack = 0;
 		}
 		
 		public void addStep(E usedEdge, N arrivalNode) {
 			nodes.add(arrivalNode);
 			edges.add(usedEdge);
+			weightStack += usedEdge.getWeight();
 		}
 		
 		public void addInitial(N initialNode) {
 			nodes.add(initialNode);
 		}
 		
+		public double getWeight() {
+			return weightStack;
+		}
+		
 		public Path<E, N> build() {
 			Collections.reverse(nodes);
 			Collections.reverse(edges);
-			
-			double weightStack = 0;
-			
-			for (E e: edges) {
-				weightStack += e.getWeight();
-			}
 			
 			return new Path<>(nodes, edges, weightStack);
 		}
