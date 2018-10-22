@@ -12,12 +12,9 @@ import template.utils.Tuple;
 
 public class AStar<E extends Edge, N extends Node> {
 	
-	// TODO explorationDepth functionality is not implemented yet
-	private final int explorationDepth;
 	private final Explorer<E, N> explorer;
 	
-	public AStar(Explorer<E, N> explorer, int explorationDepth) {
-		this.explorationDepth = explorationDepth;
+	public AStar(Explorer<E, N> explorer) {
 		this.explorer = explorer;
 	}
 	

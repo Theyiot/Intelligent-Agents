@@ -11,12 +11,9 @@ import java.util.LinkedList;
 
 public final class BFS<E extends Edge, N extends Node> {
 	
-	// TODO explorationDepth functionality is not implemented yet
-	private final int explorationDepth;
 	private final Explorer<E, N> explorer;
 	
-	public BFS(Explorer<E, N> explorer, int explorationDepth) {
-		this.explorationDepth = explorationDepth;
+	public BFS(Explorer<E, N> explorer) {
 		this.explorer = explorer;
 	}
 	

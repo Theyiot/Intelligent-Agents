@@ -72,7 +72,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 			
 			Transitioner transitioner = new Transitioner();
 			
-			BFS<Action, State> planResolver = new BFS<>(transitioner, 100);
+			BFS<Action, State> planResolver = new BFS<>(transitioner);
 			
 			Path<Action, State> goalPath = planResolver.getGoalPathFrom(currentState);
 			
