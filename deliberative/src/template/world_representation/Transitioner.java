@@ -64,7 +64,15 @@ public class Transitioner implements Explorer<Action, State> {
 	
 	@Override
 	public double h(State node) {
-		return 0;
+		Set<Task> tasks = node.getHoldingTasks();
+		
+		double inferiorCostBound = 0;
+		
+		for (Task task: tasks) {
+			inferiorCostBound = Math.max(task.pathLength(), inferiorCostBound);
+		}
+		
+		return - inferiorCostBound;
 	}
 	
 	public Set<Action> getLegalActionsAt(State state) {
@@ -97,7 +105,7 @@ public class Transitioner implements Explorer<Action, State> {
 
 		if (location.hasNeighbor(destination)) {
 			State newState = new State(state, destination);
-			Double reward = - location.distanceTo(destination);
+			Double reward = location.distanceTo(destination);
 			return new Tuple<Double, State>(reward, newState);
 		} else {
 			throw new IllegalTransitionException(

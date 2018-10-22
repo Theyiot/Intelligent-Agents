@@ -3,8 +3,12 @@ package template.algorithm;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
 
 import template.utils.ListOp;
 
@@ -26,17 +30,18 @@ public class AStar<E extends Edge, N extends Node> extends ExplorationAlgorithm<
 	}
 
 	public Path<E, N> getGoalPathFrom(N node) {
-		List<ExplorationNode<E, N>> nonExploredNodes = new ArrayList<>();
+		Queue<ExplorationNode<E, N>> nonExploredNodes = new PriorityQueue<ExplorationNode<E, N>>(comparator);
 		nonExploredNodes.add(new ExplorationNode<>(null, node, null, explorer, 0, 0));
 		Map<Node, ExplorationNode<E, N>> visitedNodes = new HashMap<>();
 
 		while (true) {
 	
-			ExplorationNode<E, N> currentExplorationNode = nonExploredNodes.remove(0);
+			ExplorationNode<E, N> currentExplorationNode = nonExploredNodes.remove();
 
 			if (currentExplorationNode.isGoal()) {
 				
 				ExplorationNode<E, N> goalNode = currentExplorationNode;
+				System.out.println("Path cost: " + goalNode.pathFromRoot().getWeight());
 				return goalNode.pathFromRoot();
 				
 			} else if (!visitedNodes.containsKey(currentExplorationNode.getCurrentNode()) || 
@@ -46,8 +51,8 @@ public class AStar<E extends Edge, N extends Node> extends ExplorationAlgorithm<
 				visitedNodes.put(currentExplorationNode.getCurrentNode(), currentExplorationNode);
 				List<ExplorationNode<E, N>> nextNodes = new ArrayList<>(currentExplorationNode.next());
 				
-				nextNodes.sort(comparator);	
-				ListOp.merge(nonExploredNodes, nextNodes, comparator);
+				nextNodes.sort(comparator);
+				nonExploredNodes.addAll(nextNodes);
 			}
 		}
 

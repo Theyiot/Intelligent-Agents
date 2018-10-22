@@ -39,10 +39,12 @@ public final class BFS<E extends Edge, N extends Node> extends ExplorationAlgori
 		Path<E, N> bestPath = null;
 		
 		for (Path<E, N> path: candidatePaths) {
-			if (bestPath == null || path.getWeight() > bestPath.getWeight()) {
+			if (bestPath == null || path.getWeight() < bestPath.getWeight()) {
 				bestPath = path;
 			} 
 		}	
+		
+		System.out.println("Path cost: " + bestPath.getWeight());
 		
 		return bestPath;
 	}
