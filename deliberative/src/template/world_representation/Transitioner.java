@@ -66,29 +66,16 @@ public class Transitioner implements Explorer<Action, State> {
 	
 	@Override
 	public double h(State node) {
-		double shortest = Double.MAX_VALUE;
-		
-		for(Task from : node.getWorldTasks()) {
-			for(Task to : node.getHoldingTasks()) {
-				shortest = Math.min(from.pickupCity.distanceTo(to.deliveryCity), shortest);
-				shortest = Math.min(from.deliveryCity.distanceTo(to.deliveryCity), shortest);
-			}
-		}
-		
-		return shortest;
-		
-		/*
-		Set<Task> tasks = node.getHoldingTasks();
+		/*Set<Task> tasks = node.getHoldingTasks();
 		
 		double inferiorCostBound = 0;
 		
 		for (Task task: tasks) {
-			
 			inferiorCostBound = Math.max(task.pathLength() + node.getLocation().distanceTo(task.pickupCity), inferiorCostBound);
-			
 		}
 		
-		return - inferiorCostBound;*/
+		return inferiorCostBound;*/
+		return 0.0;
 	}
 	
 	public Set<Action> getLegalActionsAt(State state) {
@@ -121,7 +108,7 @@ public class Transitioner implements Explorer<Action, State> {
 
 		if (location.hasNeighbor(destination)) {
 			State newState = new State(state, destination);
-			Double reward = location.distanceTo(destination);
+			Double reward = action.getWeight();
 			return new Tuple<Double, State>(reward, newState);
 		} else {
 			throw new IllegalTransitionException(
@@ -138,7 +125,7 @@ public class Transitioner implements Explorer<Action, State> {
 		if (state.getWorldTasks().contains(task) && location.equals(taskPickupLocation) && 
 				state.getCarryingWeight() + task.weight <= state.getWeightCapacity()) {
 			State newState = new State(state, task, ActionType.PICKUP);
-			Double reward = 0.0;
+			Double reward = action.getWeight();
 			return new Tuple<Double, State>(reward, newState);
 		} else {
 			throw new IllegalTransitionException(
@@ -154,13 +141,13 @@ public class Transitioner implements Explorer<Action, State> {
 
 		if (state.getHoldingTasks().contains(task) && location.equals(taskDeliveryLocation)) {
 			State newState = new State(state, task, ActionType.DELIVER);
-			Double reward = (double) task.reward;
+			Double reward = (double) action.getWeight();
 			
 			// This line to maximise the reward
 			// return new Tuple<Double, State>(reward, newState);
 			
 			// This line to minimize the cost
-			return new Tuple<Double, State>(0.0, newState);
+			return new Tuple<Double, State>(reward, newState);
 		} else {
 			throw new IllegalTransitionException(
 					"Tried to perform illegal delivery " + task + " at location " + state.getLocation());
