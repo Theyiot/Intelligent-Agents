@@ -1,13 +1,10 @@
 package template;
 
-/* import table */
-import logist.simulation.Vehicle;
-
-import java.util.HashSet;
-
 import logist.agent.Agent;
 import logist.behavior.DeliberativeBehavior;
 import logist.plan.Plan;
+/* import table */
+import logist.simulation.Vehicle;
 import logist.task.Task;
 import logist.task.TaskDistribution;
 import logist.task.TaskSet;
@@ -19,7 +16,6 @@ import template.algorithm.Path;
 import template.logist_interface.PathToPlanConverter;
 import template.world_representation.Transitioner;
 import template.world_representation.action.Action;
-import template.world_representation.action.Move;
 import template.world_representation.state.State;
 
 /**
