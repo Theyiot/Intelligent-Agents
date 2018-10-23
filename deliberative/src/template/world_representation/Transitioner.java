@@ -1,5 +1,6 @@
 package template.world_representation;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -7,6 +8,9 @@ import java.util.Set;
 import logist.task.Task;
 import logist.topology.Topology.City;
 import template.algorithm.Explorer;
+import template.algorithm.Graph;
+import template.algorithm.GraphEdge;
+import template.algorithm.GraphVertex;
 import template.utils.IllegalTransitionException;
 import template.utils.Tuple;
 import template.world_representation.action.Action;
@@ -80,6 +84,35 @@ public class Transitioner implements Explorer<Action, State> {
 		}
 		
 		return inferiorCostBound;
+	}
+	
+	//@Override
+	public double hPrime(State node) {
+		Set<GraphVertex> vertices = new HashSet<>();
+		
+		GraphVertex currentVertex = new GraphVertex(node.getLocation());
+		
+		vertices.add(currentVertex);
+		
+		for (Task task: node.getHoldingTasks()) {
+			vertices.add(new GraphVertex(task.deliveryCity));
+		}
+		
+		for (Task task: node.getWorldTasks()) {
+			vertices.add(new GraphVertex(task.deliveryCity));
+			vertices.add(new GraphVertex(task.pickupCity));
+		}
+		
+		
+		Set<GraphEdge> edges = new HashSet<>();
+		
+		for (GraphVertex vertex: vertices) {
+			for (GraphVertex oVertex: vertices) {
+					edges.add(new GraphEdge(vertex, oVertex));
+			}
+		}
+		
+		return new Graph(new ArrayList<>(vertices), new ArrayList<>(edges)).minSpanningTreeWeight(currentVertex);
 	}
 	
 	public Set<Action> getLegalActionsAt(State state) {

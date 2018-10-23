@@ -1,4 +1,4 @@
-package template.world_representation;
+package template.algorithm;
 
 import java.util.HashSet;
 import java.util.List;

@@ -1,4 +1,4 @@
-package template.world_representation;
+package template.algorithm;
 
 import logist.topology.Topology.City;
 

@@ -1,14 +1,14 @@
-package template.world_representation;
+package template.algorithm;
 
 public class GraphEdge {
 	private final GraphVertex u;
 	private final GraphVertex v;
 	private final double cost;
 	
-	public GraphEdge(GraphVertex u, GraphVertex v, double cost) {
+	public GraphEdge(GraphVertex u, GraphVertex v) {
 		this.u = u;
 		this.v = v;
-		this.cost = cost;
+		this.cost = u.getCity().distanceTo(v.getCity());
 	}
 	
 	public GraphVertex getU() {
