@@ -42,6 +42,7 @@ public class AStar<E extends Edge, N extends Node> extends ExplorationAlgorithm<
 				
 				ExplorationNode<E, N> goalNode = currentExplorationNode;
 				System.out.println("Path cost: " + goalNode.pathFromRoot().getWeight());
+				System.out.println("Path: " + goalNode.pathFromRoot());
 				return goalNode.pathFromRoot();
 				
 			} else if (!visitedNodes.containsKey(currentExplorationNode.getCurrentNode()) || 

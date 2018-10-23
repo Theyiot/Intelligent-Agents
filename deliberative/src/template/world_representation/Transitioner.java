@@ -69,7 +69,9 @@ public class Transitioner implements Explorer<Action, State> {
 		double inferiorCostBound = 0;
 		
 		for (Task task: tasks) {
-			inferiorCostBound = Math.max(task.pathLength(), inferiorCostBound);
+			
+			inferiorCostBound = Math.max(task.pathLength() + node.getLocation().distanceTo(task.pickupCity), inferiorCostBound);
+			
 		}
 		
 		return - inferiorCostBound;

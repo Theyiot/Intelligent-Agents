@@ -1,10 +1,14 @@
 package template.algorithm;
 
 import java.util.Set;
-import java.util.Queue;
 
+import template.algorithm.ExplorationAlgorithm.ExplorationNode;
+
+import java.util.Queue;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 
 public final class BFS<E extends Edge, N extends Node> extends ExplorationAlgorithm<E, N> {
 	
@@ -17,7 +21,7 @@ public final class BFS<E extends Edge, N extends Node> extends ExplorationAlgori
 	public Path<E, N> getGoalPathFrom(N node) {
 		Queue<ExplorationNode<E, N>> nonExploredNodes = new LinkedList<>();
 		nonExploredNodes.add(new ExplorationNode<>(null, node, null, explorer, 0, 0));
-		Set<Node> visitedNodes = new HashSet<>();
+		Map<Node, ExplorationNode<E, N>> visitedNodes = new HashMap<>();
 		
 		
 		
@@ -29,9 +33,11 @@ public final class BFS<E extends Edge, N extends Node> extends ExplorationAlgori
 			if (currentExplorationNode.isGoal()) {
 				ExplorationNode<E, N> goalNode = currentExplorationNode;
 				candidatePaths.add(goalNode.pathFromRoot());
-			} else if (!visitedNodes.contains(currentExplorationNode.getCurrentNode())) {
+			} else if (!visitedNodes.containsKey(currentExplorationNode.getCurrentNode())|| 
+					currentExplorationNode.getAccumulatedWeight() < 
+					visitedNodes.get(currentExplorationNode.getCurrentNode()).getAccumulatedWeight()) {
 				Set<ExplorationNode<E, N>> nextNodes = currentExplorationNode.next();
-				visitedNodes.add(currentExplorationNode.getCurrentNode());
+				visitedNodes.put(currentExplorationNode.getCurrentNode(), currentExplorationNode);
 				nonExploredNodes.addAll(nextNodes);
 			}
 		}
@@ -45,6 +51,7 @@ public final class BFS<E extends Edge, N extends Node> extends ExplorationAlgori
 		}	
 		
 		System.out.println("Path cost: " + bestPath.getWeight());
+		System.out.println("Path: " + bestPath);
 		
 		return bestPath;
 	}
