@@ -43,8 +43,7 @@ public final class ListOp {
 	            }
 	        }
 
-	        result.add(lowest.get(0));
-	        lowest.remove(0);
+	        result.add(lowest.remove(0));
 	    }
 
 	    return result;

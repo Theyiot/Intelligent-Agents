@@ -1,18 +1,20 @@
 package template.world_representation;
 
-import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import logist.task.Task;
 import logist.topology.Topology.City;
-
-import template.world_representation.state.State;
 import template.algorithm.Explorer;
 import template.utils.IllegalTransitionException;
 import template.utils.Tuple;
-import template.world_representation.action.*;
+import template.world_representation.action.Action;
 import template.world_representation.action.Action.ActionType;
+import template.world_representation.action.Deliver;
+import template.world_representation.action.Move;
+import template.world_representation.action.Pickup;
+import template.world_representation.state.State;
 
 public class Transitioner implements Explorer<Action, State> {
 
@@ -64,6 +66,18 @@ public class Transitioner implements Explorer<Action, State> {
 	
 	@Override
 	public double h(State node) {
+		double shortest = Double.MAX_VALUE;
+		
+		for(Task from : node.getWorldTasks()) {
+			for(Task to : node.getHoldingTasks()) {
+				shortest = Math.min(from.pickupCity.distanceTo(to.deliveryCity), shortest);
+				shortest = Math.min(from.deliveryCity.distanceTo(to.deliveryCity), shortest);
+			}
+		}
+		
+		return shortest;
+		
+		/*
 		Set<Task> tasks = node.getHoldingTasks();
 		
 		double inferiorCostBound = 0;
@@ -74,7 +88,7 @@ public class Transitioner implements Explorer<Action, State> {
 			
 		}
 		
-		return - inferiorCostBound;
+		return - inferiorCostBound;*/
 	}
 	
 	public Set<Action> getLegalActionsAt(State state) {

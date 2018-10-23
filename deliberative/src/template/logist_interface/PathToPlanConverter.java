@@ -1,10 +1,9 @@
 package template.logist_interface;
 
+import logist.plan.Plan;
 import template.algorithm.Path;
 import template.world_representation.action.Action;
 import template.world_representation.state.State;
-
-import logist.plan.Plan;
 
 public class PathToPlanConverter {
 	

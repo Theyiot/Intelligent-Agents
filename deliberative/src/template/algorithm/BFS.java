@@ -1,14 +1,11 @@
 package template.algorithm;
 
-import java.util.Set;
-
-import template.algorithm.ExplorationAlgorithm.ExplorationNode;
-
-import java.util.Queue;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 public final class BFS<E extends Edge, N extends Node> extends ExplorationAlgorithm<E, N> {
 	
