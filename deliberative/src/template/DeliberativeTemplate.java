@@ -64,7 +64,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 		switch (algorithm) {
 		case ASTAR:
 			
-			currentState = new State(tasks.clone(),  TaskSet.create(new Task[0]), vehicle.getCurrentCity(), vehicle.capacity());
+			currentState = new State(tasks.clone(),  vehicle.getCurrentTasks(), vehicle.getCurrentCity(), vehicle.capacity());
 			
 			transitioner = new Transitioner();
 					
@@ -77,7 +77,7 @@ public class DeliberativeTemplate implements DeliberativeBehavior {
 			break;
 		case BFS:
 			
-			currentState = new State(tasks.clone(),  TaskSet.create(new Task[0]), vehicle.getCurrentCity(), vehicle.capacity());
+			currentState = new State(tasks.clone(),  vehicle.getCurrentTasks(), vehicle.getCurrentCity(), vehicle.capacity());
 			
 			transitioner = new Transitioner();
 			
