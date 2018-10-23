@@ -143,7 +143,7 @@ public class Transitioner implements Explorer<Action, State> {
 			Double reward = (double) task.reward;
 			
 			// This line to maximise the reward
-			//return new Tuple<Double, State>(reward, newState);
+			// return new Tuple<Double, State>(reward, newState);
 			
 			// This line to minimize the cost
 			return new Tuple<Double, State>(0.0, newState);
