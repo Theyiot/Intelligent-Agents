@@ -33,8 +33,6 @@ public class AStar<E extends Edge, N extends Node> extends ExplorationAlgorithm<
 		while (true) {
 	
 			ExplorationNode<E, N> currentExplorationNode = nonExploredNodes.remove();
-			
-			//System.out.println("Current weight " + explorer.h(currentExplorationNode.getCurrentNode()) + currentExplorationNode.getAccumulatedWeight());
 
 			if (currentExplorationNode.isGoal()) {
 				

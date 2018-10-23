@@ -66,7 +66,8 @@ public class Transitioner implements Explorer<Action, State> {
 	
 	@Override
 	public double h(State node) {
-		/*Set<Task> tasks = node.getHoldingTasks();
+		Set<Task> tasks = node.getWorldTasks();
+		Set<Task> holdingTasks = node.getHoldingTasks();
 		
 		double inferiorCostBound = 0;
 		
@@ -74,8 +75,11 @@ public class Transitioner implements Explorer<Action, State> {
 			inferiorCostBound = Math.max(task.pathLength() + node.getLocation().distanceTo(task.pickupCity), inferiorCostBound);
 		}
 		
-		return inferiorCostBound;*/
-		return 0.0;
+		for (Task holdingTask: holdingTasks) {
+			inferiorCostBound = Math.max(node.getLocation().distanceTo(holdingTask.deliveryCity), inferiorCostBound);
+		}
+		
+		return inferiorCostBound;
 	}
 	
 	public Set<Action> getLegalActionsAt(State state) {
