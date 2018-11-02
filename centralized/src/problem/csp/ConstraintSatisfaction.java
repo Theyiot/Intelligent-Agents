@@ -6,41 +6,44 @@ import java.util.Set;
 
 import problem.csp.primitive.Assignment;
 import problem.csp.primitive.Constraint;
-import problem.csp.primitive.Domain;
 import problem.csp.primitive.ObjectiveFunction;
-import problem.csp.primitive.Value;
+import problem.csp.primitive.Variable;
+import problem.csp.primitive.Variable.RealizedVariable;
 
 public final class ConstraintSatisfaction {
-	private final List<Domain> D;
+	private final List<Variable> X;
 	private final Set<Constraint> C;
 	private final ObjectiveFunction objective;
 	
 	
-	public ConstraintSatisfaction(List<Domain> D, Set<Constraint> C, ObjectiveFunction objective) {
-		this.D = D;
+	public ConstraintSatisfaction(List<Variable> X, Set<Constraint> C, ObjectiveFunction objective) {
+		this.X = X;
 		this.C = C;
 		this.objective = objective;
 	}
 	
 	public class CSPAssignment implements Assignment {
-		private final List<Value> values;
+		private final List<RealizedVariable> realizations;
 		
-		public CSPAssignment(List<Value> values) {
-			if (!isValid(values)) {
+		public CSPAssignment(List<RealizedVariable> realizations) {
+			if (!isValid(realizations)) {
 				throw new IllegalArgumentException("Invalid assignement for current CSP problem");	
 			}
 			
-			this.values = new ArrayList<>(values);
+			this.realizations = new ArrayList<>(realizations);
 		}
 		
-		public List<Value> getAssignment() {
-			return values;
+		@Override
+		public List<RealizedVariable> getRealizations() {
+			return realizations;
 		}
 		
+		@Override
 		public double cost() {
 			return objective.valueAt(this);
 		}
 		
+		@Override
 		public boolean isSolution() {
 			for (Constraint constraint: C) {
 				if (!constraint.valueAt(this)) {
@@ -51,13 +54,13 @@ public final class ConstraintSatisfaction {
 			return true;	
 		}
 		
-		private boolean isValid(List<Value> values) {
-			if (D.size() != values.size()) {
+		private boolean isValid(List<RealizedVariable> realizations) {
+			if (X.size() != realizations.size()) {
 				return false;
 			}
 			
-			for (int i=0; i < values.size(); ++i) {
-				if (!D.get(i).contains(values.get(i))) {
+			for (int i=0; i < realizations.size(); ++i) {
+				if (!X.get(i).isRealization((realizations.get(i)))) {
 					return false;
 				}
 			}

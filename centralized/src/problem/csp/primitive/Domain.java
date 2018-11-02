@@ -7,5 +7,7 @@ public interface Domain {
 	public boolean contains(Value value);
 	
 	public Set<Value> getDomain();
+	
+	public int getSize();
 
 }
