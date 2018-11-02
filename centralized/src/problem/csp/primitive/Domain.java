@@ -2,12 +2,23 @@ package problem.csp.primitive;
 
 import java.util.Set;
 
-public interface Domain {
+public class Domain {
+	private final Set<Value> domain;
 	
-	public boolean contains(Value value);
+	public Domain(Set<Value> values) {
+		this.domain = values;
+	}
 	
-	public Set<Value> getDomain();
+	public boolean contains(Value value) {
+		return domain.contains(value);
+	}
 	
-	public int getSize();
+	public Set<Value> getDomain() {
+		return domain;
+	}
+	
+	public int getSize() {
+		return domain.size();
+	}
 
 }

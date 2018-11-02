@@ -2,8 +2,11 @@ package template;
 
 //the list of imports
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+
 import logist.LogistSettings;
 
 import logist.Measures;
@@ -18,6 +21,21 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+import problem.csp.ConstraintSatisfaction;
+import problem.csp.ConstraintSatisfaction.CSPAssignment;
+import problem.csp.primitive.Assignment;
+import problem.csp.primitive.Constraint;
+import problem.csp.primitive.Domain;
+import problem.csp.primitive.ObjectiveFunction;
+import problem.csp.primitive.Value;
+import problem.csp.primitive.Variable;
+import problem.csp.resolver.CSPResolver;
+import problem.csp.resolver.SLS;
+import centralized.value.PDPConstraintFactory;
+import centralized.value.PDPVariable;
+import centralized.value.PDPVariable.VariableType;
+import centralized.value.TaskValue.ValueType;
+import centralized.value.TaskValue;
 
 /**
  * A very simple auction agent that assigns all tasks to its first vehicle and
@@ -59,6 +77,60 @@ public class CentralizedTemplate implements CentralizedBehavior {
     @Override
     public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
         long time_start = System.currentTimeMillis();
+        
+        /* Beginning of our code */
+        
+        // Domains creation
+        Set<Value> values = new HashSet<>();
+        for (Task task: tasks) {
+        		values.add(new TaskValue(task, ValueType.PICKUP));
+        		values.add(new TaskValue(task, ValueType.DELIVER));
+        }
+        Domain actionDomain = new Domain(values);
+        
+       
+        // Variables creation
+        final List<Variable> planVariables = new ArrayList<>();
+    		for (int i=0; i < 2*tasks.size(); ++i) {
+    			planVariables.add(new PDPVariable(actionDomain, i));
+    		}
+    		
+    		List<Variable> plansVariables = new ArrayList<>();
+    		for (Vehicle vehicle: vehicles) {
+    			plansVariables.addAll(planVariables);
+    		}
+       
+        
+        // Constraints creation
+    		PDPConstraintFactory constraintFactory = new PDPConstraintFactory(planVariables.size(), vehicles.size());
+    		Set<Constraint> constraints =  constraintFactory.getAllConstraints();
+    		
+    		// Objective function creation
+    		ObjectiveFunction pdpObjectiveFunction = new ObjectiveFunction() {
+    			@Override
+    			public double valueAt(Assignment point) {
+    				// TODO Implement objective function
+    				return 0;
+    			}
+    		};
+    		
+    		
+    		// CSP creation
+    		ConstraintSatisfaction pdpConstraintSatisfaction = new ConstraintSatisfaction(plansVariables, constraints, pdpObjectiveFunction);
+    		
+    		
+    		// SLS creation 
+    		CSPResolver initialResolver = new CSPResolver() {
+    			public CSPAssignment resolve(ConstraintSatisfaction cspProblem) {
+    				
+    				
+    			}
+    		};
+    		
+    		SLS resolver = new SLS(initialResolver, );
+          
+        
+        /* End of our code */
         
 //		System.out.println("Agent " + agent.id() + " has tasks " + tasks);
         Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);

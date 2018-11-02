@@ -21,6 +21,7 @@ public final class SLS implements CSPResolver {
 		this.depth = depth;
 	}
 	
+	@Override
 	public CSPAssignment resolve(ConstraintSatisfaction problem) {
 		// TODO might want to add a compatibility check between problem and initialResolver
 		CSPAssignment initialSolution = initialResolver.resolve(problem);
