@@ -81,21 +81,22 @@ public class CentralizedTemplate implements CentralizedBehavior {
         /* Beginning of our code */
         
         // Domains creation
-        Set<Value> values = new HashSet<>();
+        Set<TaskValue> values = new HashSet<>();
+        values.add(new TaskValue(null, ValueType.NONE));
         for (Task task: tasks) {
         		values.add(new TaskValue(task, ValueType.PICKUP));
         		values.add(new TaskValue(task, ValueType.DELIVER));
         }
-        Domain actionDomain = new Domain(values);
+        Domain<TaskValue> actionDomain = new Domain<>(values);
         
        
         // Variables creation
-        final List<Variable> planVariables = new ArrayList<>();
+        final List<Variable<TaskValue>> planVariables = new ArrayList<>();
     		for (int i=0; i < 2*tasks.size(); ++i) {
     			planVariables.add(new PDPVariable(actionDomain, i));
     		}
     		
-    		List<Variable> plansVariables = new ArrayList<>();
+    		List<Variable<TaskValue>> plansVariables = new ArrayList<>();
     		for (Vehicle vehicle: vehicles) {
     			plansVariables.addAll(planVariables);
     		}
@@ -103,12 +104,12 @@ public class CentralizedTemplate implements CentralizedBehavior {
         
         // Constraints creation
     		PDPConstraintFactory constraintFactory = new PDPConstraintFactory(planVariables.size(), vehicles.size());
-    		Set<Constraint> constraints =  constraintFactory.getAllConstraints();
+    		Set<Constraint<TaskValue>> constraints =  constraintFactory.getAllConstraints();
     		
     		// Objective function creation
-    		ObjectiveFunction pdpObjectiveFunction = new ObjectiveFunction() {
+    		ObjectiveFunction<TaskValue> pdpObjectiveFunction = new ObjectiveFunction<TaskValue>() {
     			@Override
-    			public double valueAt(Assignment point) {
+    			public double valueAt(Assignment<TaskValue> point) {
     				// TODO Implement objective function
     				return 0;
     			}
@@ -116,18 +117,20 @@ public class CentralizedTemplate implements CentralizedBehavior {
     		
     		
     		// CSP creation
-    		ConstraintSatisfaction pdpConstraintSatisfaction = new ConstraintSatisfaction(plansVariables, constraints, pdpObjectiveFunction);
+    		ConstraintSatisfaction<TaskValue> pdpConstraintSatisfaction = new ConstraintSatisfaction<TaskValue>(plansVariables, constraints, pdpObjectiveFunction);
     		
     		
     		// SLS creation 
-    		CSPResolver initialResolver = new CSPResolver() {
-    			public CSPAssignment resolve(ConstraintSatisfaction cspProblem) {
+    		final Set<Task> tasksSet = tasks.clone();
+    		CSPResolver<TaskValue> initialResolver = new CSPResolver<TaskValue>() {
+    			public Assignment<TaskValue> resolve(ConstraintSatisfaction<TaskValue> cspProblem) {
+    				
     				
     				
     			}
     		};
     		
-    		SLS resolver = new SLS(initialResolver, );
+    		//SLS<TaskValue> resolver = new SLS<TaskValue>(initialResolver, );
           
         
         /* End of our code */

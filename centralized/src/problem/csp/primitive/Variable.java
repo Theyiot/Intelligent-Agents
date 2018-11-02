@@ -1,13 +1,13 @@
 package problem.csp.primitive;
 
-public abstract class Variable {
-	private final Domain domain;
+public abstract class Variable<V extends Value> {
+	private final Domain<V> domain;
 	
-	public Variable(Domain domain) {
+	public Variable(Domain<V> domain) {
 		this.domain = domain;
 	}
 	
-	public boolean contains(Value value) {
+	public boolean contains(V value) {
 		return domain.contains(value);
 	}
 	
@@ -15,15 +15,19 @@ public abstract class Variable {
 		return domain.getSize();
 	}
 	
+	public Domain<V> getDomain() {
+		return domain;
+	}
+	
 	public boolean isRealization(RealizedVariable realizedVariable) {
 		return realizedVariable.getParent().equals(this);
 	}
 	
 	public class RealizedVariable {
-		private final Value value;
-		private final Variable parentVariable;
+		private final V value;
+		private final Variable<V> parentVariable;
 		
-		public RealizedVariable(Value value) {
+		public RealizedVariable(V value) {
 			this.value = value;
 			parentVariable = Variable.this;
 		}
@@ -32,7 +36,7 @@ public abstract class Variable {
 			return value;
 		}
 		
-		public Variable getParent() {
+		public Variable<V> getParent() {
 			return parentVariable;
 		}
 	}

@@ -1,8 +1,7 @@
 package problem.csp.primitive;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import problem.csp.primitive.Variable.RealizedVariable;
 
 /**
  * The Assignment interface represent a concrete realization of the variables' set X
@@ -10,12 +9,24 @@ import problem.csp.primitive.Variable.RealizedVariable;
  * @author Amaury Combes
  *
  */
-public interface Assignment {
+public class Assignment<V extends Value> {
 
-	public boolean isSolution();
-
-	public double cost();
+	private final List<Variable<V>.RealizedVariable> realizations;
 	
-	public List<RealizedVariable> getRealizations();
+	public Assignment(List<Variable<V>.RealizedVariable> realizations) {
+		this.realizations = new ArrayList<>(realizations);
+	}
+	
+	public int size() {
+		return realizations.size();
+	}
+	
+	public List<Variable<V>.RealizedVariable> getRealizations() {
+		return realizations;
+	}
+	
+	public Variable<V>.RealizedVariable get(int i) {
+		return realizations.get(i);
+	}
 
 }

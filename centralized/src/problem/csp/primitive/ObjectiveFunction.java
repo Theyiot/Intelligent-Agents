@@ -1,7 +1,7 @@
 package problem.csp.primitive;
 
-public interface ObjectiveFunction {
+public interface ObjectiveFunction<V extends Value> {
 	
-	public double valueAt(Assignment point);
+	public double valueAt(Assignment<V> point);
 
 }

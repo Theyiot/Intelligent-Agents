@@ -6,15 +6,16 @@ import java.util.Set;
 import java.util.Random;
 
 import problem.csp.ConstraintSatisfaction;
-import problem.csp.ConstraintSatisfaction.CSPAssignment;
+import problem.csp.primitive.Assignment;
+import problem.csp.primitive.Value;
 
-public final class SLS implements CSPResolver {
+public final class SLS<V extends Value> implements CSPResolver<V> {
 	private final int depth;
-	private final CSPResolver initialResolver;
+	private final CSPResolver<V> initialResolver;
 	private final double stochasticFactor;
-	private final Disrupter disrupter;
+	private final Disrupter<V> disrupter;
 	
-	public SLS(CSPResolver initialResolver, Disrupter disrupter, double stochasticFactor, int depth) {
+	public SLS(CSPResolver<V> initialResolver, Disrupter<V> disrupter, double stochasticFactor, int depth) {
 		this.initialResolver = initialResolver;
 		this.disrupter = disrupter;
 		this.stochasticFactor = stochasticFactor;
@@ -22,21 +23,21 @@ public final class SLS implements CSPResolver {
 	}
 	
 	@Override
-	public CSPAssignment resolve(ConstraintSatisfaction problem) {
+	public Assignment<V> resolve(ConstraintSatisfaction<V> problem) {
 		// TODO might want to add a compatibility check between problem and initialResolver
-		CSPAssignment initialSolution = initialResolver.resolve(problem);
+		Assignment<V> initialSolution = initialResolver.resolve(problem);
 		
 		return recursiveResolution(problem, 0, initialSolution);
 	}
 	
-	private CSPAssignment recursiveResolution(ConstraintSatisfaction problem, int depth, CSPAssignment currentSolution) {
+	private Assignment<V> recursiveResolution(ConstraintSatisfaction<V> problem, int depth, Assignment<V> currentSolution) {
 		if (depth == this.depth) {
 			return currentSolution;
 		} else {
 			// ChooseNeighbours()
-			Set<CSPAssignment> newAssignments = disrupter.disrupte(currentSolution);
+			Set<Assignment<V>> newAssignments = disrupter.disrupte(currentSolution);
 			// LocalChoice() - part 1
-			CSPAssignment newAssignment = chooseBest(newAssignments);
+			Assignment<V> newAssignment = chooseBest(newAssignments, problem);
 			
 			// TODO WARNING should we check that the new assignment is better than the previous one ?
 			// LocalChoice() - part 2 (stochasticity)
@@ -48,14 +49,14 @@ public final class SLS implements CSPResolver {
 		}
 	}
 	
-	private CSPAssignment chooseBest(Set<CSPAssignment> assignments) {
-		Set<CSPAssignment> minAssignmentByCost = null;
+	private Assignment<V> chooseBest(Set<Assignment<V>> assignments, ConstraintSatisfaction<V> objectiveFunction) {
+		Set<Assignment<V>> minAssignmentByCost = null;
 		
 		double minCost = Double.MAX_VALUE;
 		
 		// Find smallest assignment assignment by cost
-		for (CSPAssignment assignment: assignments) {
-			double cost = assignment.cost();
+		for (Assignment<V> assignment: assignments) {
+			double cost = objectiveFunction.cost(assignment);
 			
 			if (cost < minCost) {
 				minAssignmentByCost = new HashSet<>();

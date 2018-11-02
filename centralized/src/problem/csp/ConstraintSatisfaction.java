@@ -1,73 +1,66 @@
 package problem.csp;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import problem.csp.primitive.Assignment;
 import problem.csp.primitive.Constraint;
+import problem.csp.primitive.Domain;
 import problem.csp.primitive.ObjectiveFunction;
+import problem.csp.primitive.Value;
 import problem.csp.primitive.Variable;
-import problem.csp.primitive.Variable.RealizedVariable;
 
-public final class ConstraintSatisfaction {
-	private final List<Variable> X;
-	private final Set<Constraint> C;
-	private final ObjectiveFunction objective;
+public final class ConstraintSatisfaction<V extends Value> {
+	private final List<Variable<V>> X;
+	private final Set<Constraint<V>> C;
+	private final ObjectiveFunction<V> objective;
 	
 	
-	public ConstraintSatisfaction(List<Variable> X, Set<Constraint> C, ObjectiveFunction objective) {
+	public ConstraintSatisfaction(List<Variable<V>> X, Set<Constraint<V>> C, ObjectiveFunction<V> objective) {
 		this.X = X;
 		this.C = C;
 		this.objective = objective;
 	}
 	
-	public class CSPAssignment implements Assignment {
-		private final List<RealizedVariable> realizations;
-		
-		public CSPAssignment(List<RealizedVariable> realizations) {
-			if (!isValid(realizations)) {
-				throw new IllegalArgumentException("Invalid assignement for current CSP problem");	
-			}
-			
-			this.realizations = new ArrayList<>(realizations);
+	public double cost(Assignment<V> assignment) {
+		return objective.valueAt(assignment);
+	}
+	
+	public boolean isSolution(Assignment<V> assignment) {
+		if (!isValid(assignment)) {
+			throw new IllegalArgumentException("Tried to check for an unvalid assignment");
 		}
 		
-		@Override
-		public List<RealizedVariable> getRealizations() {
-			return realizations;
-		}
-		
-		@Override
-		public double cost() {
-			return objective.valueAt(this);
-		}
-		
-		@Override
-		public boolean isSolution() {
-			for (Constraint constraint: C) {
-				if (!constraint.valueAt(this)) {
-					return false;
-				}
-			}
-			
-			return true;	
-		}
-		
-		private boolean isValid(List<RealizedVariable> realizations) {
-			if (X.size() != realizations.size()) {
+		for (Constraint<V> constraint: C) {
+			if (!constraint.valueAt(assignment)) {
 				return false;
 			}
-			
-			for (int i=0; i < realizations.size(); ++i) {
-				if (!X.get(i).isRealization((realizations.get(i)))) {
-					return false;
-				}
-			}
-			
-			return true;
 		}
 		
+		return true;	
 	}
-
+	
+	private boolean isValid(Assignment<V> assignment) {
+		if (X.size() != assignment.size()) {
+			return false;
+		}
+		
+		for (int i=0; i < assignment.size(); ++i) {
+			if (!X.get(i).isRealization((assignment.get(i)))) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	private Set<Domain<V>> getDomains() {
+		Set<Domain<V>> domains = new HashSet<>();
+		for (Variable<V> variable: X) {
+			domains.add(variable.getDomain());
+		}
+		return domains;
+	}
 }

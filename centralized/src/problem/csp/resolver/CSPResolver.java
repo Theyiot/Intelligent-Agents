@@ -1,10 +1,11 @@
 package problem.csp.resolver;
 
 import problem.csp.ConstraintSatisfaction;
-import problem.csp.ConstraintSatisfaction.CSPAssignment;
+import problem.csp.primitive.Assignment;
+import problem.csp.primitive.Value;
 
-public interface CSPResolver {
+public interface CSPResolver<V extends Value> {
 	
-	public CSPAssignment resolve(ConstraintSatisfaction cspProblem);
+	public Assignment<V> resolve(ConstraintSatisfaction<V> cspProblem);
 
 }
