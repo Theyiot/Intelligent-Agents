@@ -3,6 +3,7 @@ package template;
 //the list of imports
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -21,19 +22,19 @@ import logist.task.TaskDistribution;
 import logist.task.TaskSet;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
+
 import problem.csp.ConstraintSatisfaction;
-import problem.csp.ConstraintSatisfaction.CSPAssignment;
 import problem.csp.primitive.Assignment;
 import problem.csp.primitive.Constraint;
 import problem.csp.primitive.Domain;
 import problem.csp.primitive.ObjectiveFunction;
 import problem.csp.primitive.Value;
 import problem.csp.primitive.Variable;
+import problem.csp.primitive.Variable.RealizedVariable;
 import problem.csp.resolver.CSPResolver;
 import problem.csp.resolver.SLS;
-import centralized.value.PDPConstraintFactory;
-import centralized.value.PDPVariable;
-import centralized.value.PDPVariable.VariableType;
+import centralized.PDPConstraintFactory;
+import centralized.PDPVariable;
 import centralized.value.TaskValue.ValueType;
 import centralized.value.TaskValue;
 
@@ -96,7 +97,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
     			planVariables.add(new PDPVariable(actionDomain, i));
     		}
     		
-    		List<Variable<TaskValue>> plansVariables = new ArrayList<>();
+    		final List<Variable<TaskValue>> plansVariables = new ArrayList<>();
     		for (Vehicle vehicle: vehicles) {
     			plansVariables.addAll(planVariables);
     		}
@@ -122,13 +123,29 @@ public class CentralizedTemplate implements CentralizedBehavior {
     		
     		// SLS creation 
     		final Set<Task> tasksSet = tasks.clone();
-    		CSPResolver<TaskValue> initialResolver = new CSPResolver<TaskValue>() {
-    			public Assignment<TaskValue> resolve(ConstraintSatisfaction<TaskValue> cspProblem) {
-    				
-    				
-    				
-    			}
-    		};
+    		final int variableCount = plansVariables.size();
+		CSPResolver<TaskValue> initialResolver = new CSPResolver<TaskValue>() {
+			public Assignment<TaskValue> resolve(ConstraintSatisfaction<TaskValue> cspProblem) {
+				List<Variable<TaskValue>> cspVariables = cspProblem.getVariables();
+				List<Variable<TaskValue>.RealizedVariable> realizations = new ArrayList<>();
+				
+				int i = 0;
+				// Fill first vehicle plan by picking and delivering immediately tasks 
+				for (Task task: tasksSet) {
+					realizations.set(i, cspVariables.get(i).realize(new TaskValue(task, ValueType.PICKUP)));
+					realizations.set(i + 1, cspVariables.get(i).realize(new TaskValue(task, ValueType.DELIVER)));
+					i += 2;
+				}
+				
+				// Fill other vehicle plans with no tasks
+				for (int j=i; j < variableCount; ++j) {
+					realizations.set(j, cspVariables.get(j).realize(new TaskValue(null, ValueType.NONE)));
+					
+				}
+				
+				return new Assignment<TaskValue>(realizations);
+			}
+		};
     		
     		//SLS<TaskValue> resolver = new SLS<TaskValue>(initialResolver, );
           

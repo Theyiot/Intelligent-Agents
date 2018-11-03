@@ -23,13 +23,18 @@ public abstract class Variable<V extends Value> {
 		return realizedVariable.getParent().equals(this);
 	}
 	
+	public RealizedVariable realize(V value) {
+		return this.new RealizedVariable(value);
+	}
+	
 	public class RealizedVariable {
 		private final V value;
-		private final Variable<V> parentVariable;
 		
 		public RealizedVariable(V value) {
+			if (!Variable.this.contains(value)) {
+				throw new IllegalArgumentException("Tried to realized a variable with an illegal value");
+			}
 			this.value = value;
-			parentVariable = Variable.this;
 		}
 		
 		public Value getValue() {
@@ -37,7 +42,7 @@ public abstract class Variable<V extends Value> {
 		}
 		
 		public Variable<V> getParent() {
-			return parentVariable;
+			return Variable.this;
 		}
 	}
 }

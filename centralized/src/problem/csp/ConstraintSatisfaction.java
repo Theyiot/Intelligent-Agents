@@ -24,6 +24,10 @@ public final class ConstraintSatisfaction<V extends Value> {
 		this.objective = objective;
 	}
 	
+	public List<Variable<V>> getVariables() {
+		return X;
+	}
+	
 	public double cost(Assignment<V> assignment) {
 		return objective.valueAt(assignment);
 	}
