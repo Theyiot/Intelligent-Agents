@@ -8,10 +8,18 @@ import problem.csp.primitive.Value;
 public class TaskValue implements Value {
 	private final Task task;
 	private final ValueType type;
+	private final int vehicleCapacity;
 	
 	public TaskValue(Task task, ValueType type) {
 		this.task = task;
 		this.type = type;
+		this.vehicleCapacity = 0;
+	}
+	
+	public TaskValue(Task task, ValueType type, int vehicleCapacity) {
+		this.task = task;
+		this.type = type;
+		this.vehicleCapacity = vehicleCapacity;
 	}
 	
 	public Task getTask() {
@@ -20,6 +28,23 @@ public class TaskValue implements Value {
 	
 	public ValueType getType() {
 		return type;
+	}
+	
+	public int getVehicleCapacity() {
+		return vehicleCapacity;
+	}
+	
+	public int getWeight() {
+		switch(type) {
+		case PICKUP:
+			return task.weight;
+		case DELIVER:
+			return -task.weight;
+		case NONE:
+			return 0;
+		default:
+			throw new IllegalStateException("Task with unknown type");
+		}
 	}
 	
 	@Override

@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import logist.LogistSettings;
 
@@ -46,150 +47,152 @@ import centralized.value.TaskValue;
 @SuppressWarnings("unused")
 public class CentralizedTemplate implements CentralizedBehavior {
 
-    private Topology topology;
-    private TaskDistribution distribution;
-    private Agent agent;
-    private long timeout_setup;
-    private long timeout_plan;
-    
-    @Override
-    public void setup(Topology topology, TaskDistribution distribution,
-            Agent agent) {
-        
-        // this code is used to get the timeouts
-        LogistSettings ls = null;
-        try {
-            ls = Parsers.parseSettings("config\\settings_default.xml");
-        }
-        catch (Exception exc) {
-            System.out.println("There was a problem loading the configuration file.");
-        }
-        
-        // the setup method cannot last more than timeout_setup milliseconds
-        timeout_setup = ls.get(LogistSettings.TimeoutKey.SETUP);
-        // the plan method cannot execute more than timeout_plan milliseconds
-        timeout_plan = ls.get(LogistSettings.TimeoutKey.PLAN);
-        
-        this.topology = topology;
-        this.distribution = distribution;
-        this.agent = agent;
-    }
+	private Topology topology;
+	private TaskDistribution distribution;
+	private Agent agent;
+	private long timeout_setup;
+	private long timeout_plan;
 
-    @Override
-    public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
-        long time_start = System.currentTimeMillis();
-        
-        /* Beginning of our code */
-        
-        // Domains creation
-        Set<TaskValue> values = new HashSet<>();
-        values.add(new TaskValue(null, ValueType.NONE));
-        for (Task task: tasks) {
-        		values.add(new TaskValue(task, ValueType.PICKUP));
-        		values.add(new TaskValue(task, ValueType.DELIVER));
-        }
-        Domain<TaskValue> actionDomain = new Domain<>(values);
-        
-       
-        // Variables creation
-        final List<Variable<TaskValue>> planVariables = new ArrayList<>();
-    		for (int i=0; i < 2*tasks.size(); ++i) {
-    			planVariables.add(new PDPVariable(actionDomain, i));
-    		}
-    		
-    		final List<Variable<TaskValue>> plansVariables = new ArrayList<>();
-    		for (Vehicle vehicle: vehicles) {
-    			plansVariables.addAll(planVariables);
-    		}
-       
-        
-        // Constraints creation
-    		PDPConstraintFactory constraintFactory = new PDPConstraintFactory(planVariables.size(), vehicles.size());
-    		Set<Constraint<TaskValue>> constraints =  constraintFactory.getAllConstraints();
-    		
-    		// Objective function creation
-    		ObjectiveFunction<TaskValue> pdpObjectiveFunction = new ObjectiveFunction<TaskValue>() {
-    			@Override
-    			public double valueAt(Assignment<TaskValue> point) {
-    				// TODO Implement objective function
-    				return 0;
-    			}
-    		};
-    		
-    		
-    		// CSP creation
-    		ConstraintSatisfaction<TaskValue> pdpConstraintSatisfaction = new ConstraintSatisfaction<TaskValue>(plansVariables, constraints, pdpObjectiveFunction);
-    		
-    		
-    		// SLS creation 
-    		final Set<Task> tasksSet = tasks.clone();
-    		final int variableCount = plansVariables.size();
+	@Override
+	public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
+
+		// this code is used to get the timeouts
+		LogistSettings ls = null;
+		try {
+			ls = Parsers.parseSettings("config\\settings_default.xml");
+		} catch (Exception exc) {
+			System.out.println("There was a problem loading the configuration file.");
+		}
+
+		// the setup method cannot last more than timeout_setup milliseconds
+		timeout_setup = ls.get(LogistSettings.TimeoutKey.SETUP);
+		// the plan method cannot execute more than timeout_plan milliseconds
+		timeout_plan = ls.get(LogistSettings.TimeoutKey.PLAN);
+
+		this.topology = topology;
+		this.distribution = distribution;
+		this.agent = agent;
+	}
+
+	@Override
+	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
+		long time_start = System.currentTimeMillis();
+
+		/* Beginning of our code */
+
+		// Domains creation
+		Set<TaskValue> values = new HashSet<>();
+		values.add(new TaskValue(null, ValueType.NONE));
+		for (Task task : tasks) {
+			values.add(new TaskValue(task, ValueType.PICKUP));
+			values.add(new TaskValue(task, ValueType.DELIVER));
+		}
+		Domain<TaskValue> actionDomain = new Domain<>(values);
+
+		// Variables creation
+		final List<Variable<TaskValue>> planVariables = new ArrayList<>();
+		for (int i = 0; i < 2 * tasks.size(); ++i) {
+			planVariables.add(new PDPVariable(actionDomain, i));
+		}
+
+		final List<Variable<TaskValue>> plansVariables = new ArrayList<>();
+		for (Vehicle vehicle : vehicles) {
+			plansVariables.addAll(planVariables);
+		}
+
+		// Constraints creation
+		PDPConstraintFactory constraintFactory = new PDPConstraintFactory(planVariables.size(), vehicles.size());
+		Set<Constraint<TaskValue>> constraints = constraintFactory.getAllConstraints();
+
+		// Objective function creation
+		ObjectiveFunction<TaskValue> pdpObjectiveFunction = new ObjectiveFunction<TaskValue>() {
+			@Override
+			public double valueAt(Assignment<TaskValue> point) {
+				// TODO Implement objective function
+				return 0;
+			}
+		};
+
+		// CSP creation
+		ConstraintSatisfaction<TaskValue> pdpConstraintSatisfaction = new ConstraintSatisfaction<TaskValue>(
+				plansVariables, constraints, pdpObjectiveFunction);
+
+		// SLS creation
+		final Set<Task> tasksSet = tasks.clone();
+		final int variableCount = plansVariables.size();
 		CSPResolver<TaskValue> initialResolver = new CSPResolver<TaskValue>() {
 			public Assignment<TaskValue> resolve(ConstraintSatisfaction<TaskValue> cspProblem) {
 				List<Variable<TaskValue>> cspVariables = cspProblem.getVariables();
-				List<Variable<TaskValue>.RealizedVariable> realizations = new ArrayList<>();
-				
+				List<List<Variable<TaskValue>.RealizedVariable>> realizations = new ArrayList<>();
+
 				int i = 0;
-				// Fill first vehicle plan by picking and delivering immediately tasks 
-				for (Task task: tasksSet) {
-					realizations.set(i, cspVariables.get(i).realize(new TaskValue(task, ValueType.PICKUP)));
-					realizations.set(i + 1, cspVariables.get(i).realize(new TaskValue(task, ValueType.DELIVER)));
+				List<Variable<TaskValue>.RealizedVariable> realization = new ArrayList<>(2 * tasks.size());
+				// Fill first vehicle plan by picking and delivering immediately tasks
+				for (Task task : tasksSet) {
+					realization.set(i, cspVariables.get(i).realize(
+							new TaskValue(task, ValueType.PICKUP, vehicles.get(i / 2).capacity())));
+					realization.set(i + 1, cspVariables.get(i + 1).realize(
+							new TaskValue(task, ValueType.DELIVER, vehicles.get(i / 2).capacity())));
 					i += 2;
 				}
-				
+				realizations.add(realization);
+
 				// Fill other vehicle plans with no tasks
-				for (int j=i; j < variableCount; ++j) {
-					realizations.set(j, cspVariables.get(j).realize(new TaskValue(null, ValueType.NONE)));
-					
+				for (int rows = 0; rows < vehicles.size() - 1; rows++) {
+					realization = new ArrayList<>();
+					for (int cols = 0; cols < 2 * tasks.size(); cols++) {
+						realization.set(cols, cspVariables.get(cols).realize(
+								new TaskValue(null, ValueType.NONE, vehicles.get(cols / 2).capacity())));
+					}
+					realizations.add(realization);
 				}
-				
-				return new Assignment<TaskValue>(realizations);
+
+				return new Assignment<TaskValue>(realizations, vehicles.stream().map(Vehicle::capacity).collect(Collectors.toList()));
 			}
 		};
-    		
-    		//SLS<TaskValue> resolver = new SLS<TaskValue>(initialResolver, );
-          
-        
-        /* End of our code */
-        
+
+		// SLS<TaskValue> resolver = new SLS<TaskValue>(initialResolver, );
+
+		/* End of our code */
+
 //		System.out.println("Agent " + agent.id() + " has tasks " + tasks);
-        Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
+		Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
 
-        List<Plan> plans = new ArrayList<Plan>();
-        plans.add(planVehicle1);
-        while (plans.size() < vehicles.size()) {
-            plans.add(Plan.EMPTY);
-        }
-        
-        long time_end = System.currentTimeMillis();
-        long duration = time_end - time_start;
-        System.out.println("The plan was generated in "+duration+" milliseconds.");
-        
-        return plans;
-    }
+		List<Plan> plans = new ArrayList<Plan>();
+		plans.add(planVehicle1);
+		while (plans.size() < vehicles.size()) {
+			plans.add(Plan.EMPTY);
+		}
 
-    private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
-        City current = vehicle.getCurrentCity();
-        Plan plan = new Plan(current);
+		long time_end = System.currentTimeMillis();
+		long duration = time_end - time_start;
+		System.out.println("The plan was generated in " + duration + " milliseconds.");
 
-        for (Task task : tasks) {
-            // move: current city => pickup location
-            for (City city : current.pathTo(task.pickupCity)) {
-                plan.appendMove(city);
-            }
+		return plans;
+	}
 
-            plan.appendPickup(task);
+	private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
+		City current = vehicle.getCurrentCity();
+		Plan plan = new Plan(current);
 
-            // move: pickup location => delivery location
-            for (City city : task.path()) {
-                plan.appendMove(city);
-            }
+		for (Task task : tasks) {
+			// move: current city => pickup location
+			for (City city : current.pathTo(task.pickupCity)) {
+				plan.appendMove(city);
+			}
 
-            plan.appendDelivery(task);
+			plan.appendPickup(task);
 
-            // set current city
-            current = task.deliveryCity;
-        }
-        return plan;
-    }
+			// move: pickup location => delivery location
+			for (City city : task.path()) {
+				plan.appendMove(city);
+			}
+
+			plan.appendDelivery(task);
+
+			// set current city
+			current = task.deliveryCity;
+		}
+		return plan;
+	}
 }

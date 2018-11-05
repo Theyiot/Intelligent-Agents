@@ -11,22 +11,39 @@ import java.util.List;
  */
 public class Assignment<V extends Value> {
 
-	private final List<Variable<V>.RealizedVariable> realizations;
+	private final List<List<Variable<V>.RealizedVariable>> realizations;
+	private final List<Integer> capacities;
 	
-	public Assignment(List<Variable<V>.RealizedVariable> realizations) {
-		this.realizations = new ArrayList<>(realizations);
+	public Assignment(List<List<Variable<V>.RealizedVariable>> realizations, List<Integer> capacities) {
+		this.realizations = new ArrayList<>(realizations.size());
+		for(List<Variable<V>.RealizedVariable> r : realizations) {
+			this.realizations.add(new ArrayList<>(r));
+		}
+		this.capacities = capacities;
 	}
 	
 	public int size() {
 		return realizations.size();
 	}
 	
-	public List<Variable<V>.RealizedVariable> getRealizations() {
+	public List<List<Variable<V>.RealizedVariable>> getRealizations() {
 		return realizations;
 	}
 	
-	public Variable<V>.RealizedVariable get(int i) {
-		return realizations.get(i);
+	public int getCapacityForVehicle(int i) {
+		return capacities.get(i);
 	}
-
+	
+	public Variable<V>.RealizedVariable get(int x, int y) {
+		return realizations.get(y).get(x);
+	}
+	
+	public Variable<V>.RealizedVariable get(int i) {
+		if(realizations.size() == 0 || realizations.get(0).size() == 0) {
+			throw new IllegalStateException("Tried to access element from a list that is empty");
+		}
+		int x = i % realizations.get(0).size();
+		int y = i / realizations.get(0).size();
+		return get(x, y);
+	}
 }
