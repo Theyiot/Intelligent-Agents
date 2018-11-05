@@ -1,6 +1,9 @@
 *.class
 /bin/
 
+*.classpath
+*.project
+
 *.class
 
 *.DS_Store
