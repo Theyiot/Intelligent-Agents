@@ -28,7 +28,6 @@ public class PDPConstraintFactory {
 		constraints.add(constraint4());
 		constraints.add(constraint5());
 		constraints.add(constraint6());
-		constraints.add(constraint7());
 
 		return constraints;
 	}
@@ -181,7 +180,7 @@ public class PDPConstraintFactory {
 					return false;
 				}
 				for (int y = 0; y < vehicleCount; y++) {
-					int maxCapacity = point.getCapacityForVehicle(y);
+					int maxCapacity = ((PDPVariable)(point.get(0, y).getParent())).getCapacity();
 					int actualWeight = 0;
 					for (int x = 0; x < inputSize; x++) {
 						TaskValue taskValue = (TaskValue) (point.get(x, y).getValue());
@@ -234,30 +233,4 @@ public class PDPConstraintFactory {
 
 		return constraint;
 	}
-
-	private Constraint<PDPVariable, TaskValue> constraint7() {
-		Constraint<PDPVariable, TaskValue> constraint = new Constraint<PDPVariable, TaskValue>() {
-
-			@Override
-			public int getInputSize() {
-				return inputSize;
-			}
-
-			@Override
-			public boolean valueAt(Assignment<PDPVariable, TaskValue> point) {
-				// Point contains a list of values. First inputPerVehicle correspond to plan for
-				// vehicle 1, next inputPerVehicle correspond to plan for vehicle 2... etc
-				for (int i = 0; i < point.size() - 1; i++) {
-				}
-				return true;
-			}
-
-		};
-
-		return constraint;
-	}
-
-	// TODO Create other constraints similarly to constraint1(). Do not forget to
-	// add them to getAllConstraints()
-
 }

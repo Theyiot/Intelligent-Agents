@@ -90,7 +90,15 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		Domain<TaskValue> actionDomain = new Domain<>(values);
 
 		// Variables creation
-		final List<PDPVariable> planVariables = new ArrayList<>();
+		final List<PDPVariable> plansVariables = new ArrayList<>();
+		for (Vehicle vehicle : vehicles) {
+			List<PDPVariable> planVariables = new ArrayList<>();
+			for (int i = 0; i < 2 * tasks.size(); ++i) {
+				planVariables.add(new PDPVariable(actionDomain, i, vehicle.capacity()));
+			}
+			plansVariables.addAll(planVariables);
+		}
+		/*final List<PDPVariable> planVariables = new ArrayList<>();
 		for (int i = 0; i < 2 * tasks.size(); ++i) {
 			planVariables.add(new PDPVariable(actionDomain, i));
 		}
@@ -98,10 +106,10 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		final List<PDPVariable> plansVariables = new ArrayList<>();
 		for (Vehicle vehicle : vehicles) {
 			plansVariables.addAll(planVariables);
-		}
+		}*/
 
 		// Constraints creation
-		PDPConstraintFactory constraintFactory = new PDPConstraintFactory(planVariables.size(), vehicles.size());
+		PDPConstraintFactory constraintFactory = new PDPConstraintFactory(2 * tasks.size(), vehicles.size());
 		Set<Constraint<PDPVariable, TaskValue>> constraints = constraintFactory.getAllConstraints();
 
 		// Objective function creation
@@ -148,7 +156,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 					realizations.add(realization);
 				}
 
-				return new Assignment<PDPVariable, TaskValue>(realizations, vehicles.stream().map(Vehicle::capacity).collect(Collectors.toList()));
+				return new Assignment<PDPVariable, TaskValue>(realizations);
 			}
 		};
 

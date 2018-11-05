@@ -10,16 +10,13 @@ import java.util.List;
  *
  */
 public class Assignment<B extends Variable<V>, V extends Value> {
-
 	private final List<List<B.RealizedVariable>> realizations;
-	private final List<Integer> capacities;
 	
-	public Assignment(List<List<B.RealizedVariable>> realizations, List<Integer> capacities) {
+	public Assignment(List<List<B.RealizedVariable>> realizations) {
 		this.realizations = new ArrayList<>(realizations.size());
 		for(List<B.RealizedVariable> r : realizations) {
 			this.realizations.add(new ArrayList<>(r));
 		}
-		this.capacities = capacities;
 	}
 	
 	public int size() {
@@ -28,10 +25,6 @@ public class Assignment<B extends Variable<V>, V extends Value> {
 	
 	public List<List<B.RealizedVariable>> getRealizations() {
 		return realizations;
-	}
-	
-	public int getCapacityForVehicle(int i) {
-		return capacities.get(i);
 	}
 	
 	public B.RealizedVariable get(int x, int y) {
