@@ -130,9 +130,9 @@ public class CentralizedTemplate implements CentralizedBehavior {
 				// Fill first vehicle plan by picking and delivering immediately tasks
 				for (Task task : tasksSet) {
 					realization.set(i, cspVariables.get(i).realize(
-							new TaskValue(task, ValueType.PICKUP, vehicles.get(i / 2).capacity())));
+							new TaskValue(task, ValueType.PICKUP)));
 					realization.set(i + 1, cspVariables.get(i + 1).realize(
-							new TaskValue(task, ValueType.DELIVER, vehicles.get(i / 2).capacity())));
+							new TaskValue(task, ValueType.DELIVER)));
 					i += 2;
 				}
 				realizations.add(realization);
@@ -142,7 +142,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 					realization = new ArrayList<>();
 					for (int cols = 0; cols < 2 * tasks.size(); cols++) {
 						realization.set(cols, cspVariables.get(cols).realize(
-								new TaskValue(null, ValueType.NONE, vehicles.get(cols / 2).capacity())));
+								new TaskValue(null, ValueType.NONE)));
 					}
 					realizations.add(realization);
 				}
