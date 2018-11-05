@@ -9,14 +9,14 @@ import java.util.List;
  * @author Amaury Combes
  *
  */
-public class Assignment<V extends Value> {
+public class Assignment<B extends Variable<V>, V extends Value> {
 
-	private final List<List<Variable<V>.RealizedVariable>> realizations;
+	private final List<List<B.RealizedVariable>> realizations;
 	private final List<Integer> capacities;
 	
-	public Assignment(List<List<Variable<V>.RealizedVariable>> realizations, List<Integer> capacities) {
+	public Assignment(List<List<B.RealizedVariable>> realizations, List<Integer> capacities) {
 		this.realizations = new ArrayList<>(realizations.size());
-		for(List<Variable<V>.RealizedVariable> r : realizations) {
+		for(List<B.RealizedVariable> r : realizations) {
 			this.realizations.add(new ArrayList<>(r));
 		}
 		this.capacities = capacities;
@@ -26,7 +26,7 @@ public class Assignment<V extends Value> {
 		return realizations.size();
 	}
 	
-	public List<List<Variable<V>.RealizedVariable>> getRealizations() {
+	public List<List<B.RealizedVariable>> getRealizations() {
 		return realizations;
 	}
 	
@@ -34,11 +34,11 @@ public class Assignment<V extends Value> {
 		return capacities.get(i);
 	}
 	
-	public Variable<V>.RealizedVariable get(int x, int y) {
+	public B.RealizedVariable get(int x, int y) {
 		return realizations.get(y).get(x);
 	}
 	
-	public Variable<V>.RealizedVariable get(int i) {
+	public B.RealizedVariable get(int i) {
 		if(realizations.size() == 0 || realizations.get(0).size() == 0) {
 			throw new IllegalStateException("Tried to access element from a list that is empty");
 		}

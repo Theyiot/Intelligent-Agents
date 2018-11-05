@@ -90,43 +90,44 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		Domain<TaskValue> actionDomain = new Domain<>(values);
 
 		// Variables creation
-		final List<Variable<TaskValue>> planVariables = new ArrayList<>();
+		final List<PDPVariable> planVariables = new ArrayList<>();
 		for (int i = 0; i < 2 * tasks.size(); ++i) {
 			planVariables.add(new PDPVariable(actionDomain, i));
 		}
 
-		final List<Variable<TaskValue>> plansVariables = new ArrayList<>();
+		final List<PDPVariable> plansVariables = new ArrayList<>();
 		for (Vehicle vehicle : vehicles) {
 			plansVariables.addAll(planVariables);
 		}
 
 		// Constraints creation
 		PDPConstraintFactory constraintFactory = new PDPConstraintFactory(planVariables.size(), vehicles.size());
-		Set<Constraint<TaskValue>> constraints = constraintFactory.getAllConstraints();
+		Set<Constraint<PDPVariable, TaskValue>> constraints = constraintFactory.getAllConstraints();
 
 		// Objective function creation
-		ObjectiveFunction<TaskValue> pdpObjectiveFunction = new ObjectiveFunction<TaskValue>() {
+		ObjectiveFunction<PDPVariable, TaskValue> pdpObjectiveFunction = new ObjectiveFunction<PDPVariable, TaskValue>() {
 			@Override
-			public double valueAt(Assignment<TaskValue> point) {
+			public double valueAt(Assignment<PDPVariable, TaskValue> point) {
 				// TODO Implement objective function
 				return 0;
 			}
 		};
 
 		// CSP creation
-		ConstraintSatisfaction<TaskValue> pdpConstraintSatisfaction = new ConstraintSatisfaction<TaskValue>(
+		ConstraintSatisfaction<PDPVariable, TaskValue> pdpConstraintSatisfaction = new ConstraintSatisfaction<PDPVariable, TaskValue>(
 				plansVariables, constraints, pdpObjectiveFunction);
 
 		// SLS creation
 		final Set<Task> tasksSet = tasks.clone();
+		final List<Vehicle> cVehicles = new ArrayList<>(vehicles);
 		final int variableCount = plansVariables.size();
-		CSPResolver<TaskValue> initialResolver = new CSPResolver<TaskValue>() {
-			public Assignment<TaskValue> resolve(ConstraintSatisfaction<TaskValue> cspProblem) {
-				List<Variable<TaskValue>> cspVariables = cspProblem.getVariables();
-				List<List<Variable<TaskValue>.RealizedVariable>> realizations = new ArrayList<>();
+		CSPResolver<PDPVariable, TaskValue> initialResolver = new CSPResolver<PDPVariable, TaskValue>() {
+			public Assignment<PDPVariable, TaskValue> resolve(ConstraintSatisfaction<PDPVariable, TaskValue> cspProblem) {
+				List<PDPVariable> cspVariables = cspProblem.getVariables();
+				List<List<PDPVariable.RealizedVariable>> realizations = new ArrayList<>();
 
 				int i = 0;
-				List<Variable<TaskValue>.RealizedVariable> realization = new ArrayList<>(2 * tasks.size());
+				List<PDPVariable.RealizedVariable> realization = new ArrayList<>(2 * tasksSet.size());
 				// Fill first vehicle plan by picking and delivering immediately tasks
 				for (Task task : tasksSet) {
 					realization.set(i, cspVariables.get(i).realize(
@@ -138,16 +139,16 @@ public class CentralizedTemplate implements CentralizedBehavior {
 				realizations.add(realization);
 
 				// Fill other vehicle plans with no tasks
-				for (int rows = 0; rows < vehicles.size() - 1; rows++) {
+				for (int rows = 0; rows < cVehicles.size() - 1; rows++) {
 					realization = new ArrayList<>();
-					for (int cols = 0; cols < 2 * tasks.size(); cols++) {
+					for (int cols = 0; cols < 2 * tasksSet.size(); cols++) {
 						realization.set(cols, cspVariables.get(cols).realize(
 								new TaskValue(null, ValueType.NONE)));
 					}
 					realizations.add(realization);
 				}
 
-				return new Assignment<TaskValue>(realizations, vehicles.stream().map(Vehicle::capacity).collect(Collectors.toList()));
+				return new Assignment<PDPVariable, TaskValue>(realizations, vehicles.stream().map(Vehicle::capacity).collect(Collectors.toList()));
 			}
 		};
 

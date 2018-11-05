@@ -11,32 +11,32 @@ import problem.csp.primitive.ObjectiveFunction;
 import problem.csp.primitive.Value;
 import problem.csp.primitive.Variable;
 
-public final class ConstraintSatisfaction<V extends Value> {
-	private final List<Variable<V>> X;
-	private final Set<Constraint<V>> C;
-	private final ObjectiveFunction<V> objective;
+public final class ConstraintSatisfaction<B extends Variable<V>, V extends Value> {
+	private final List<B> X;
+	private final Set<Constraint<B, V>> C;
+	private final ObjectiveFunction<B, V> objective;
 	
 	
-	public ConstraintSatisfaction(List<Variable<V>> X, Set<Constraint<V>> C, ObjectiveFunction<V> objective) {
+	public ConstraintSatisfaction(List<B> X, Set<Constraint<B, V>> C, ObjectiveFunction<B, V> objective) {
 		this.X = X;
 		this.C = C;
 		this.objective = objective;
 	}
 	
-	public List<Variable<V>> getVariables() {
+	public List<B> getVariables() {
 		return X;
 	}
 	
-	public double cost(Assignment<V> assignment) {
+	public double cost(Assignment<B, V> assignment) {
 		return objective.valueAt(assignment);
 	}
 	
-	public boolean isSolution(Assignment<V> assignment) {
+	public boolean isSolution(Assignment<B, V> assignment) {
 		if (!isValid(assignment)) {
 			throw new IllegalArgumentException("Tried to check for an unvalid assignment");
 		}
 		
-		for (Constraint<V> constraint: C) {
+		for (Constraint<B, V> constraint: C) {
 			if (!constraint.valueAt(assignment)) {
 				return false;
 			}
@@ -45,7 +45,7 @@ public final class ConstraintSatisfaction<V extends Value> {
 		return true;	
 	}
 	
-	private boolean isValid(Assignment<V> assignment) {
+	private boolean isValid(Assignment<B, V> assignment) {
 		if (X.size() != assignment.size()) {
 			return false;
 		}
@@ -61,7 +61,7 @@ public final class ConstraintSatisfaction<V extends Value> {
 	
 	private Set<Domain<V>> getDomains() {
 		Set<Domain<V>> domains = new HashSet<>();
-		for (Variable<V> variable: X) {
+		for (B variable: X) {
 			domains.add(variable.getDomain());
 		}
 		return domains;
