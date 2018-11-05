@@ -1,28 +1,26 @@
 package centralized.disrupter;
 
+import java.util.List;
 import java.util.Set;
 
-import logist.simulation.Vehicle;
+import centralized.PDPVariable;
+import centralized.value.TaskValue;
+import problem.csp.ConstraintSatisfaction;
 import problem.csp.primitive.Assignment;
-import problem.csp.primitive.Value;
-import problem.csp.primitive.Variable;
 import problem.csp.resolver.Disrupter;
 
-public class VehicleDisrupter extends Disrupter<Variable<B>, Value> {
-	private final Assignment<Variable<V>, Value> assignment;
-	private final Vehicle v1;
-	private final Vehicle v2;
+public class VehicleDisrupter extends Disrupter<PDPVariable, TaskValue> {
 	
-	public VehicleDisrupter(Assignment<Variable<V>, Value> assignment, Vehicle v1, Vehicle v2) {
-		this.assignment = assignment;
-		this.v1 = v1;
-		this.v2 = v2;
+	public VehicleDisrupter(ConstraintSatisfaction<PDPVariable, TaskValue> cspProblem) {
+		super(cspProblem);
+		// Pas besoin d'ajouter tous les paramètres du CSP. Il suffit juste d'avoir le CSP. Tu peux rajouter des méthodes pour avoir ce qui t'intéresse plus facilement dans Disrupter.java
 	}
 
 	@Override
-	public Set<Assignment<Variable<B>, Value>> disrupte(Assignment<Variable<B>, Value> assignement) {
-		Assigment<Variable<B>, Value> assignment1 = assignment;
-		assignment1.
-		return new Set<Assignment<Variable<B>, Value>>(assignment1);
+	public Set<Assignment<PDPVariable, TaskValue>> disrupte(Assignment<PDPVariable, TaskValue> assignement) {
+		// Pour choper les variables. Tu peux ajouter d'autres getter si tu as besoin.   
+		List<PDPVariable> variables = super.problem.getVariables();
+		
+		return null;
 	}
 }

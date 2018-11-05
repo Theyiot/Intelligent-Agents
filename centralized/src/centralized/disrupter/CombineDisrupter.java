@@ -1,32 +1,21 @@
 package centralized.disrupter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
+import centralized.PDPVariable;
+import centralized.value.TaskValue;
+import problem.csp.ConstraintSatisfaction;
 import problem.csp.primitive.Assignment;
-import problem.csp.primitive.Constraint;
-import problem.csp.primitive.Domain;
-import problem.csp.primitive.Value;
-import problem.csp.primitive.Variable;
 import problem.csp.resolver.Disrupter;
 
-public class CombineDisrupter extends Disrupter<Variable<B>, Value> {
-	private final Assignment<Variable<V>, Value> assignmentOld;
-	private final List<Variable<V>> variables;
-	private final List<Domain<V>> domains;
-	private final List<Constraint<Variable<V>, Value>> constraints;
+public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 	
-	public CombineDisrupter(Assignment<Variable<V>, Value> assignmentOld, List<Variable<V>> variables,
-			List<Domain<V>> domains, List<Constraint<Variable<V>, Value>> constraints) {
-		this.assignmentOld = assignmentOld;
-		this.variables = new ArrayList<> (variables);
-		this.domains = new ArrayList<> (domains);
-		this.constraints = new ArrayList<> (constraints);
+	public CombineDisrupter(ConstraintSatisfaction<PDPVariable, TaskValue> cspProblem) {
+		super(cspProblem);
 	}
 
 	@Override
-	public Set<Assignment<Variable<B>, Value>> disrupte(Assignment<Variable<B>, Value> assignement) {
+	public Set<Assignment<PDPVariable, TaskValue>> disrupte(Assignment<PDPVariable, TaskValue> assignement) {
 		return null;
 	}
 }

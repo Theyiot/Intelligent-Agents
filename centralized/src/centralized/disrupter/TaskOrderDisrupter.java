@@ -1,26 +1,21 @@
 package centralized.disrupter;
 
-import logist.simulation.Vehicle;
+import java.util.Set;
+
+import centralized.PDPVariable;
+import centralized.value.TaskValue;
+import problem.csp.ConstraintSatisfaction;
 import problem.csp.primitive.Assignment;
-import problem.csp.primitive.Value;
-import problem.csp.primitive.Variable;
 import problem.csp.resolver.Disrupter;
 
-public abstract class TaskOrderDisrupter extends Disrupter<Variable<B>, Value> {
-	private final Assignment<Variable<V>, Value> assignment;
-	private final Vehicle v1;
-	private final Vehicle v2;
-	
-	public TaskOrderDisrupter(Assignment<Variable<V>, Value> assignment, Vehicle v1, Vehicle v2) {
-		this.assignment = assignment;
-		this.v1 = v1;
-		this.v2 = v2;
+public abstract class TaskOrderDisrupter extends Disrupter<PDPVariable, TaskValue> {
+
+	public TaskOrderDisrupter(ConstraintSatisfaction<PDPVariable, TaskValue> cspProblem) {
+		super(cspProblem);
 	}
 
 	@Override
-	public Set<Assignment<Variable<B>, Value>> disrupte(Assignment<Variable<B>, Value> assignement) {
+	public Set<Assignment<PDPVariable, TaskValue>> disrupte(Assignment<PDPVariable, TaskValue> assignement) {
 		return null;
 	}
-}
-
 }
