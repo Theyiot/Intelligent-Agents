@@ -22,6 +22,19 @@ public class TaskValue implements Value {
 		return type;
 	}
 	
+	public int getWeight() {
+		switch(type) {
+		case PICKUP:
+			return task.weight;
+		case DELIVER:
+			return -task.weight;
+		case NONE:
+			return 0;
+		default:
+			throw new IllegalStateException("Task with unknown type");
+		}
+	}
+	
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof TaskValue)) {
