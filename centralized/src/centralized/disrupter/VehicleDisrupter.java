@@ -76,6 +76,6 @@ public class VehicleDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		
 		Set<Assignment<PDPVariable, TaskValue>> set = new HashSet<> ();
 		set.add(newA);
-		return set;
+		return super.validateAssignments(set);
 	}
 }
