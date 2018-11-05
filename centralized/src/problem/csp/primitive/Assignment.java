@@ -12,6 +12,10 @@ import java.util.List;
 public class Assignment<B extends Variable<V>, V extends Value> {
 	private final List<List<B.RealizedVariable>> realizations;
 	
+	public Assignment(Assignment<B, V> assignment) {
+		this(assignment.getRealizations());
+	}
+	
 	public Assignment(List<List<B.RealizedVariable>> realizations) {
 		this.realizations = new ArrayList<>(realizations.size());
 		for(List<B.RealizedVariable> r : realizations) {
@@ -38,5 +42,9 @@ public class Assignment<B extends Variable<V>, V extends Value> {
 		int x = i % realizations.get(0).size();
 		int y = i / realizations.get(0).size();
 		return get(x, y);
+	}
+	
+	public List<B.RealizedVariable> getPlan(int vehicleIndex) {
+		return realizations.get(vehicleIndex);
 	}
 }

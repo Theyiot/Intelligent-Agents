@@ -98,15 +98,6 @@ public class CentralizedTemplate implements CentralizedBehavior {
 			}
 			plansVariables.addAll(planVariables);
 		}
-		/*final List<PDPVariable> planVariables = new ArrayList<>();
-		for (int i = 0; i < 2 * tasks.size(); ++i) {
-			planVariables.add(new PDPVariable(actionDomain, i));
-		}
-
-		final List<PDPVariable> plansVariables = new ArrayList<>();
-		for (Vehicle vehicle : vehicles) {
-			plansVariables.addAll(planVariables);
-		}*/
 
 		// Constraints creation
 		PDPConstraintFactory constraintFactory = new PDPConstraintFactory(2 * tasks.size(), vehicles.size());
