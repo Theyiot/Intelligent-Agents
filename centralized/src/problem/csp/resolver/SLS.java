@@ -25,10 +25,29 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 	
 	@Override
 	public Assignment<B, V> resolve(ConstraintSatisfaction<B, V> problem) {
-		// TODO might want to add a compatibility check between problem and initialResolver
 		Assignment<B, V> initialSolution = initialResolver.resolve(problem);
-		
-		return recursiveResolution(problem, 0, initialSolution);
+
+		Assignment<B, V> currentSolution = initialSolution;
+		int currentDepth = 0;
+
+		while (currentDepth < depth) {
+			System.out.println("SLS current depth " + currentDepth);
+			// ChooseNeighbours()
+			Set<Assignment<B, V>> newAssignments = disrupter.disrupte(currentSolution);
+			// LocalChoice() - part 1
+			Assignment<B, V> newAssignment = chooseBest(newAssignments, problem);
+
+			// TODO WARNING should we check that the new assignment is better than the
+			// previous one ?
+			// LocalChoice() - part 2 (stochasticity)
+			if (new Random().nextDouble() <= stochasticFactor) {
+				currentSolution = newAssignment;
+			}
+			
+			++currentDepth;
+		}
+
+		return currentSolution;
 	}
 	
 	private Assignment<B, V> recursiveResolution(ConstraintSatisfaction<B, V> problem, int depth, Assignment<B, V> currentSolution) {

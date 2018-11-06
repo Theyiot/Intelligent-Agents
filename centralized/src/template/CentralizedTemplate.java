@@ -81,6 +81,12 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		long time_start = System.currentTimeMillis();
 
 		/* Beginning of our code */
+		
+		final List<City> initialCities = new ArrayList<>();
+
+		for (Vehicle vehicle : vehicles) {
+			initialCities.add(vehicle.getCurrentCity());
+		}
 
 		// Domains creation
 		Set<TaskValue> values = new HashSet<>();
@@ -107,9 +113,11 @@ public class CentralizedTemplate implements CentralizedBehavior {
 
 		// Objective function creation
 		ObjectiveFunction<PDPVariable, TaskValue> pdpObjectiveFunction = new ObjectiveFunction<PDPVariable, TaskValue>() {
+			private final List<City> initCities = initialCities;
+			
 			@Override
 			public double valueAt(Assignment<PDPVariable, TaskValue> point) {
-				// TODO Implement objective function
+				List<List<PDPVariable.RealizedVariable>> plans = point.getRealizations();
 				return 0;
 			}
 		};
@@ -155,10 +163,10 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		
 		CombineDisrupter disrupter = new CombineDisrupter(pdpConstraintSatisfaction);
 
-		SLS<PDPVariable, TaskValue> resolver = new SLS<PDPVariable, TaskValue>(initialResolver, disrupter, 0.35, 10000);
+		SLS<PDPVariable, TaskValue> resolver = new SLS<PDPVariable, TaskValue>(initialResolver, disrupter, 0.35, 1000);
 		
 		Assignment<PDPVariable, TaskValue> solution = resolver.resolve(pdpConstraintSatisfaction);
-		List<Plan> logistPlans = PDPAssignmentConverter.toLogistPlan(solution);
+		List<Plan> logistPlans = PDPAssignmentConverter.toLogistPlan(solution, initialCities);
 		
 
 		/* End of our code */
