@@ -105,11 +105,11 @@ public class PDPConstraintFactory {
 					return false;
 				}
 				for (int y = 0; y < vehicleCount; y++) {
-					for (int x = 0; x < inputSize - 1; x++) {
+					for (int x = 0; x < inputSize; x++) {
 						TaskValue task1 = (TaskValue) (point.get(x, y).getValue());
 						if (task1.getType() == ValueType.PICKUP) {
 							boolean found = false;
-							for (int xPrime = x + 1; xPrime < inputSize; xPrime++) {
+							for (int xPrime = x; xPrime < inputSize; xPrime++) {
 								TaskValue task2 = (TaskValue) (point.get(xPrime, y).getValue());
 								if (task2.getType() == ValueType.DELIVER && task1.getTask().equals(task2.getTask())) {
 									found = true;
