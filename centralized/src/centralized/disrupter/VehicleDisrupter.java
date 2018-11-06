@@ -47,14 +47,14 @@ public class VehicleDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		}
 		
 		//Setting new values in plan2
-		Variable<TaskValue>.RealizedVariable plan2Pickup = null;
-		Variable<TaskValue>.RealizedVariable plan2Deliver = null;
+		Variable<TaskValue>.RealizedVariable plan2PickupNone = null;
+		Variable<TaskValue>.RealizedVariable plan2DeliverNone = null;
 		for(int i = 0 ; i < plan2.size() - 2 ; i++) {
 			TaskValue taskValue = (TaskValue)plan2.get(i).getValue();
 			if(taskValue.getType() == ValueType.NONE) {
-				plan2Pickup = plan2.get(i);
+				plan2PickupNone = plan2.get(i);
 				plan2.set(i, plan1.get(pickupIndex));
-				plan2Deliver = plan2.get(i + 1);
+				plan2DeliverNone = plan2.get(i + 1);
 				plan2.set(i + 1, plan1.get(deliverIndex));
 				break;
 			}
@@ -68,11 +68,11 @@ public class VehicleDisrupter extends Disrupter<PDPVariable, TaskValue> {
 				plan1.set(lastVariablePlaced++, plan1.get(i));
 			}
 		}
-		if(plan2Pickup == null || plan2Deliver == null) {
-			throw new IllegalStateException("Could not change vehicle");
+		if(plan2PickupNone == null || plan2DeliverNone == null) {
+			throw new IllegalStateException("Could not change task of vehicle");
 		}
-		plan1.set(lastVariablePlaced++, plan2Pickup);
-		plan1.set(lastVariablePlaced++, plan2Deliver);
+		plan1.set(lastVariablePlaced++, plan2PickupNone);
+		plan1.set(lastVariablePlaced++, plan2DeliverNone);
 		
 		Set<Assignment<PDPVariable, TaskValue>> set = new HashSet<> ();
 		set.add(newA);

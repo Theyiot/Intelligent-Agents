@@ -58,12 +58,4 @@ public final class ConstraintSatisfaction<B extends Variable<V>, V extends Value
 		
 		return true;
 	}
-	
-	private Set<Domain<V>> getDomains() {
-		Set<Domain<V>> domains = new HashSet<>();
-		for (B variable: X) {
-			domains.add(variable.getDomain());
-		}
-		return domains;
-	}
 }

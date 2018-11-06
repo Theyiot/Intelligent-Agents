@@ -26,7 +26,7 @@ public class TaskOrderDisrupter extends Disrupter<PDPVariable, TaskValue> {
 	}
 	
 	public void setIdx1(int newIdx1) {
-		this.index = newIdx1;
+		this.idx1 = newIdx1;
 	}
 	
 	public void setIdx2(int newIdx2) {
@@ -43,7 +43,7 @@ public class TaskOrderDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		Variable<TaskValue>.RealizedVariable v2 = plan.get(idx2);
 		TaskValue t1 = (TaskValue)v1.getValue();
 		TaskValue t2 = (TaskValue)v2.getValue();
-		if(t1.equals(t2)) {
+		if(t1.getTask().equals(t2.getTask())) {
 			return new HashSet<Assignment<PDPVariable, TaskValue>> ();
 		}
 		

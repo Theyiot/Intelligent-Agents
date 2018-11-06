@@ -7,16 +7,15 @@ import centralized.value.TaskValue;
 import centralized.value.TaskValue.ValueType;
 import problem.csp.primitive.Assignment;
 import problem.csp.primitive.Constraint;
+import problem.csp.primitive.Value;
 
 public class PDPConstraintFactory {
 	private final int inputSize;
 	private final int vehicleCount;
-	private final int inputPerVehicle;
 
 	public PDPConstraintFactory(int inputSize, int vehicleCount) {
 		this.inputSize = inputSize;
 		this.vehicleCount = vehicleCount;
-		this.inputPerVehicle = (int) (((double) inputSize) / ((double) vehicleCount));
 	}
 
 	public Set<Constraint<PDPVariable, TaskValue>> getAllConstraints() {
@@ -43,12 +42,14 @@ public class PDPConstraintFactory {
 
 			@Override
 			public boolean valueAt(Assignment<PDPVariable, TaskValue> point) {
-				if (point.size() != vehicleCount * inputSize) {
+				if (point.getTotalSize() != vehicleCount * inputSize) {
 					return false;
 				}
 				for (int y = 0; y < vehicleCount; y++) {
 					for (int x = 0; x < inputSize - 1; x++) {
-						if (point.get(x, y).getValue().equals(point.get(x + 1, y).getValue())) {
+						TaskValue v1 = (TaskValue)point.get(x, y).getValue();
+						TaskValue v2 = (TaskValue)point.get(x + 1, y).getValue(); 
+						if (v1.equals(v2) && v1.getType() != ValueType.NONE) {
 							return false;
 						}
 					}
@@ -72,12 +73,13 @@ public class PDPConstraintFactory {
 
 			@Override
 			public boolean valueAt(Assignment<PDPVariable, TaskValue> point) {
-				if (point.size() != vehicleCount * inputSize) {
+				if (point.getTotalSize() != vehicleCount * inputSize) {
 					return false;
 				}
 				for (int y = 0; y < vehicleCount; y++) {
 					if (((TaskValue) point.get(0, y).getValue()).getType() == ValueType.DELIVER) {
 						// It is OK for a vehicle to do nothing or to begin by picking a task up
+						System.out.println("C2");
 						return false;
 					}
 				}
@@ -101,7 +103,7 @@ public class PDPConstraintFactory {
 
 			@Override
 			public boolean valueAt(Assignment<PDPVariable, TaskValue> point) {
-				if (point.size() != vehicleCount * inputSize) {
+				if (point.getTotalSize() != vehicleCount * inputSize) {
 					return false;
 				}
 				for (int y = 0; y < vehicleCount; y++) {
@@ -116,6 +118,7 @@ public class PDPConstraintFactory {
 								}
 							}
 							if (!found) {
+								System.out.println("C3");
 								return false;
 							}
 						}
@@ -140,7 +143,7 @@ public class PDPConstraintFactory {
 
 			@Override
 			public boolean valueAt(Assignment<PDPVariable, TaskValue> point) {
-				if (point.size() != vehicleCount * inputSize) {
+				if (point.getTotalSize() != vehicleCount * inputSize) {
 					return false;
 				}
 				for (int y = 0; y < vehicleCount; y++) {
@@ -150,6 +153,7 @@ public class PDPConstraintFactory {
 						if (taskValue.getType() != ValueType.NONE) {
 							if (isNone) {
 								// We found a non-None task after finding a None one
+								System.out.println("C4");
 								return false;
 							}
 						} else {
@@ -176,7 +180,7 @@ public class PDPConstraintFactory {
 
 			@Override
 			public boolean valueAt(Assignment<PDPVariable, TaskValue> point) {
-				if (point.size() != vehicleCount * inputSize) {
+				if (point.getTotalSize() != vehicleCount * inputSize) {
 					return false;
 				}
 				for (int y = 0; y < vehicleCount; y++) {
@@ -186,6 +190,7 @@ public class PDPConstraintFactory {
 						TaskValue taskValue = (TaskValue) (point.get(x, y).getValue());
 						actualWeight += taskValue.getWeight();
 						if (actualWeight > maxCapacity) {
+							System.out.println("C5");
 							return false;
 						}
 					}
@@ -209,7 +214,7 @@ public class PDPConstraintFactory {
 
 			@Override
 			public boolean valueAt(Assignment<PDPVariable, TaskValue> point) {
-				if (point.size() != vehicleCount * inputSize) {
+				if (point.getTotalSize() != vehicleCount * inputSize) {
 					return false;
 				}
 				Set<TaskValue> taskValues = new HashSet<>();
@@ -224,6 +229,7 @@ public class PDPConstraintFactory {
 					}
 				}
 				if (deliveredTask != inputSize || deliveredTask != taskValues.size()) {
+					System.out.println("C6");
 					return false;
 				}
 				return true;

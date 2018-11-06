@@ -32,7 +32,6 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 	}
 	
 	private Assignment<B, V> recursiveResolution(ConstraintSatisfaction<B, V> problem, int depth, Assignment<B, V> currentSolution) {
-		System.out.println("SLS depth: " + depth);
 		if (depth == this.depth) {
 			return currentSolution;
 		} else {

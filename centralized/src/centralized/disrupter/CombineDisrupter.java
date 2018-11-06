@@ -1,6 +1,7 @@
 package centralized.disrupter;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import centralized.PDPVariable;
@@ -21,15 +22,15 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 	}
 
 	@Override
-	public Set<Assignment<PDPVariable, TaskValue>> disrupte(Assignment<PDPVariable, TaskValue> assignement) {
+	public Set<Assignment<PDPVariable, TaskValue>> disrupte(Assignment<PDPVariable, TaskValue> assignment) {
 		Set<Assignment<PDPVariable, TaskValue>> neighbours = new HashSet<>();
 		
 		//Choosing a random vehicle
 		int vehicleIndex;
 		PDPVariable.RealizedVariable variable;
 		do {
-			vehicleIndex = (int)Math.random() * assignement.size();
-		} while(((TaskValue)(variable = assignement.get(0, vehicleIndex)).getValue()).getType() == ValueType.NONE);
+			vehicleIndex = new Random().nextInt(assignment.size());
+		} while(((TaskValue)(variable = assignment.get(0, vehicleIndex)).getValue()).getType() == ValueType.NONE);
 		TaskValue taskValue = (TaskValue)variable.getValue();
 		
 		vehicleDisrupter.setIndex1(vehicleIndex);
@@ -37,14 +38,14 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		for(int i = 0 ; i < vehicleIndex ; i++) {
 			if(((PDPVariable)(variable.getParent())).getCapacity() > taskValue.getTask().weight) {
 				vehicleDisrupter.setIndex2(i);
-				neighbours.addAll(vehicleDisrupter.disrupte(assignement));
+				neighbours.addAll(vehicleDisrupter.disrupte(assignment));
 			}
 		}
 		
 		//Applying change task order operator
 		int length = 0;
-		while(length < assignement.getPlan(vehicleIndex).size() &&
-				((TaskValue)(assignement.get(length, vehicleIndex).getValue())).getType() != ValueType.NONE) {
+		while(length < assignment.getPlan(vehicleIndex).size() &&
+				((TaskValue)(assignment.get(length, vehicleIndex).getValue())).getType() != ValueType.NONE) {
 			length++;
 		}
 		
@@ -55,11 +56,10 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 				for(int idx2 = idx1 + 1 ; idx2 < length ; idx2++) {
 					taskOrderDisruper.setIdx1(idx1);
 					taskOrderDisruper.setIdx2(idx2);
-					neighbours.addAll(taskOrderDisruper.disrupte(assignement));
+					neighbours.addAll(taskOrderDisruper.disrupte(assignment));
 				}
 			}
 		}
-		
 		return neighbours;
 	}
 }
