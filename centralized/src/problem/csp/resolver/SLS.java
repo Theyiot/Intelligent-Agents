@@ -37,11 +37,11 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 			// LocalChoice() - part 1
 			Assignment<B, V> newAssignment = chooseBest(newAssignments, problem);
 
-			// TODO WARNING should we check that the new assignment is better than the
-			// previous one ?
 			// LocalChoice() - part 2 (stochasticity)
 			if (new Random().nextDouble() <= stochasticFactor) {
-				currentSolution = newAssignment;
+				if (problem.cost(newAssignment) < problem.cost(currentSolution)) {
+					currentSolution = newAssignment;
+				}
 			}
 			
 			++currentDepth;

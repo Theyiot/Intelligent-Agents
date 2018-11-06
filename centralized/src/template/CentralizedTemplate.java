@@ -2,9 +2,11 @@ package template;
 
 //the list of imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -151,30 +153,38 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		final List<Vehicle> cVehicles = new ArrayList<>(vehicles);
 		final int variableCount = plansVariables.size();
 		CSPResolver<PDPVariable, TaskValue> initialResolver = new CSPResolver<PDPVariable, TaskValue>() {
+			private final int vehicleCount = cVehicles.size();
+			
 			public Assignment<PDPVariable, TaskValue> resolve(ConstraintSatisfaction<PDPVariable, TaskValue> cspProblem) {
 				List<PDPVariable> cspVariables = cspProblem.getVariables();
 				List<List<PDPVariable.RealizedVariable>> realizations = new ArrayList<>();
+				
+				for (int i=0; i<vehicleCount; ++i) {
+					realizations.add(new ArrayList<PDPVariable.RealizedVariable>());
+				}
 
-				int i = 0;
-				List<PDPVariable.RealizedVariable> realization = new ArrayList<>(2 * tasksSet.size());
+				Map<Integer, Integer> filledCount = new HashMap<>();
+				for (int i=0; i<vehicleCount; ++i) {
+					filledCount.put(i, 0);
+				}
+				
 				// Fill first vehicle plan by picking and delivering immediately tasks
 				for (Task task : tasksSet) {
-					realization.add(i, cspVariables.get(i).realize(
+					int vehicleChoice = new Random().nextInt(vehicleCount);
+					realizations.get(vehicleChoice).add(cspVariables.get(vehicleCount * vehicleChoice + filledCount.get(vehicleChoice)).realize(
 							new TaskValue(task, ValueType.PICKUP)));
-					realization.add(i + 1, cspVariables.get(i + 1).realize(
+					realizations.get(vehicleChoice).add(cspVariables.get(vehicleCount * vehicleChoice + filledCount.get(vehicleChoice)).realize(
 							new TaskValue(task, ValueType.DELIVER)));
-					i += 2;
+					
+					filledCount.put(vehicleChoice, filledCount.get(vehicleChoice) + 2);
 				}
-				realizations.add(realization);
 
 				// Fill other vehicle plans with no tasks
-				for (int rows = 0; rows < cVehicles.size() - 1; rows++) {
-					realization = new ArrayList<>();
-					for (int cols = 0; cols < 2 * tasksSet.size(); cols++) {
-						realization.add(cols, cspVariables.get(cols).realize(
-								new TaskValue(null, ValueType.NONE)));
+				for (int vehicleIndex: filledCount.keySet()) {
+					for (int i=filledCount.get(vehicleIndex); i<2*tasksSet.size(); ++i) {
+						realizations.get(vehicleIndex).add(cspVariables.get(vehicleCount * vehicleIndex + i).realize(
+							new TaskValue()));
 					}
-					realizations.add(realization);
 				}
 
 				return new Assignment<PDPVariable, TaskValue>(realizations);
@@ -183,7 +193,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		
 		CombineDisrupter disrupter = new CombineDisrupter(pdpConstraintSatisfaction);
 
-		SLS<PDPVariable, TaskValue> resolver = new SLS<PDPVariable, TaskValue>(initialResolver, disrupter, 0.35, 1000);
+		SLS<PDPVariable, TaskValue> resolver = new SLS<PDPVariable, TaskValue>(initialResolver, disrupter, 0.35, 20000);
 		
 		Assignment<PDPVariable, TaskValue> solution = resolver.resolve(pdpConstraintSatisfaction);
 		List<Plan> logistPlans = PDPAssignmentConverter.toLogistPlan(solution, initialCities);
