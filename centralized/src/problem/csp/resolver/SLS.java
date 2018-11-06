@@ -39,9 +39,9 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 
 			// LocalChoice() - part 2 (stochasticity)
 			if (new Random().nextDouble() <= stochasticFactor) {
-				if (problem.cost(newAssignment) < problem.cost(currentSolution)) {
-					currentSolution = newAssignment;
-				}
+				System.out.println("Best found cost: " + problem.cost(newAssignment));
+				System.out.println("Current cost cost: " + problem.cost(currentSolution));
+				currentSolution = newAssignment;
 			}
 			
 			++currentDepth;
