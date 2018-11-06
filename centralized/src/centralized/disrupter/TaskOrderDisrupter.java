@@ -36,14 +36,14 @@ public class TaskOrderDisrupter extends Disrupter<PDPVariable, TaskValue> {
 	@Override
 	public Set<Assignment<PDPVariable, TaskValue>> disrupte(Assignment<PDPVariable, TaskValue> assignment) {
 		Assignment<PDPVariable, TaskValue> newA = new Assignment<PDPVariable, TaskValue> (assignment);
-
+		
 		List<Variable<TaskValue>.RealizedVariable> plan = newA.getPlan(index);
 		
 		Variable<TaskValue>.RealizedVariable v1 = plan.get(idx1);
 		Variable<TaskValue>.RealizedVariable v2 = plan.get(idx2);
 		TaskValue t1 = (TaskValue)v1.getValue();
 		TaskValue t2 = (TaskValue)v2.getValue();
-		if(t1.getTask().equals(t2.getTask())) {
+		if(t1.equals(t2)) {
 			return new HashSet<Assignment<PDPVariable, TaskValue>> ();
 		}
 		

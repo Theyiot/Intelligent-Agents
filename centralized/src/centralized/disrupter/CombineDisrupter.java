@@ -8,7 +8,6 @@ import centralized.value.TaskValue;
 import centralized.value.TaskValue.ValueType;
 import problem.csp.ConstraintSatisfaction;
 import problem.csp.primitive.Assignment;
-import problem.csp.primitive.Variable;
 import problem.csp.resolver.Disrupter;
 
 public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
@@ -27,11 +26,11 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		
 		//Choosing a random vehicle
 		int vehicleIndex;
-		Variable<TaskValue>.RealizedVariable variable;
+		PDPVariable.RealizedVariable variable;
 		do {
 			vehicleIndex = (int)Math.random() * assignement.size();
-		} while(((TaskValue)(variable = assignement.get(0, vehicleIndex)).getValue()).getType() == ValueType.NONE);
-		TaskValue taskValue = (TaskValue)(variable.getValue());
+		} while(((variable = assignement.get(0, vehicleIndex)).getValue()).getType() == ValueType.NONE);
+		TaskValue taskValue = variable.getValue();
 		
 		vehicleDisrupter.setIndex1(vehicleIndex);
 		//Applying change vehicle operator
@@ -44,7 +43,7 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		
 		//Applying change task order operator
 		int length = 0;
-		while(((TaskValue)(assignement.get(length, vehicleIndex).getValue())).getType() != ValueType.NONE) {
+		while(length < assignement.getPlan(vehicleIndex).size() && ((assignement.get(length, vehicleIndex).getValue())).getType() != ValueType.NONE) {
 			length++;
 		}
 		

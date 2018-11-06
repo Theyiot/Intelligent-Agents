@@ -33,7 +33,7 @@ public final class ConstraintSatisfaction<B extends Variable<V>, V extends Value
 	
 	public boolean isSolution(Assignment<B, V> assignment) {
 		if (!isValid(assignment)) {
-			throw new IllegalArgumentException("Tried to check for an unvalid assignment");
+			throw new IllegalArgumentException("Tried to check for an unvalid assignment with size " + assignment.getTotalSize() + " expected " + X.size());
 		}
 		
 		for (Constraint<B, V> constraint: C) {
@@ -46,15 +46,15 @@ public final class ConstraintSatisfaction<B extends Variable<V>, V extends Value
 	}
 	
 	private boolean isValid(Assignment<B, V> assignment) {
-		if (X.size() != assignment.size()) {
+		if (X.size() != assignment.getTotalSize()) {
 			return false;
 		}
 		
-		for (int i=0; i < assignment.size(); ++i) {
+		/*for (int i=0; i < assignment.size(); ++i) {
 			if (!X.get(i).isRealization((assignment.get(i)))) {
 				return false;
 			}
-		}
+		}*/
 		
 		return true;
 	}

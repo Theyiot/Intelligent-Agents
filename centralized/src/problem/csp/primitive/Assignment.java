@@ -28,6 +28,16 @@ public class Assignment<B extends Variable<V>, V extends Value> {
 		return realizations.size();
 	}
 	
+	public int getTotalSize() {
+		int sizeStack = 0;
+		
+		for (List<B.RealizedVariable> list: realizations) {
+			sizeStack += list.size();
+		}
+		
+		return sizeStack;
+	}
+	
 	public List<List<B.RealizedVariable>> getRealizations() {
 		return realizations;
 	}
