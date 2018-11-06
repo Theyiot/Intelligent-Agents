@@ -59,6 +59,7 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 			}
 		}
 		
+		System.out.println(neighbours.size());
 		return neighbours;
 	}
 }

@@ -53,7 +53,7 @@ public class VehicleDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		//Setting new values in plan2
 		Variable<TaskValue>.RealizedVariable plan2PickupNone = null;
 		Variable<TaskValue>.RealizedVariable plan2DeliverNone = null;
-		for(int i = 0 ; i < plan2.size() - 2 ; i++) {
+		for(int i = 0 ; i < plan2.size() - 1 ; i++) {
 			TaskValue taskValue = (TaskValue)plan2.get(i).getValue();
 			if(taskValue.getType() == ValueType.NONE) {
 				plan2PickupNone = plan2.get(i);
