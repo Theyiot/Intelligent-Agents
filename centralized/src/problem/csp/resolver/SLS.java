@@ -88,7 +88,7 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 		}
 		
 		// Pick and return minimum assignment by cost
-		return new ArrayList<>(minAssignmentByCost).get(new Random().nextInt(assignments.size()));
+		return new ArrayList<>(minAssignmentByCost).get(new Random().nextInt(minAssignmentByCost.size()));
 	}
 
 }

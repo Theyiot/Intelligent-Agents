@@ -81,6 +81,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		long time_start = System.currentTimeMillis();
 
 		/* Beginning of our code */
+		final List<Vehicle> vehicleList = new ArrayList<>(vehicles);
 		
 		final List<City> initialCities = new ArrayList<>();
 
@@ -113,12 +114,31 @@ public class CentralizedTemplate implements CentralizedBehavior {
 
 		// Objective function creation
 		ObjectiveFunction<PDPVariable, TaskValue> pdpObjectiveFunction = new ObjectiveFunction<PDPVariable, TaskValue>() {
-			private final List<City> initCities = initialCities;
+			private final List<Vehicle> vehiclesList = vehicleList;
 			
 			@Override
 			public double valueAt(Assignment<PDPVariable, TaskValue> point) {
 				List<List<PDPVariable.RealizedVariable>> plans = point.getRealizations();
-				return 0;
+				
+				double costStack = 0;
+				for (int i=0; i<vehiclesList.size(); ++i) {
+					
+					City currentCity = vehiclesList.get(i).getCurrentCity();
+					for (PDPVariable.RealizedVariable realization: plans.get(i)) {
+						TaskValue action = realization.getValue();
+						
+						if (action.getType() == ValueType.NONE) {
+							break;
+						} else if (action.getType() == ValueType.PICKUP) {
+							costStack += currentCity.distanceTo(action.getTask().pickupCity) * vehiclesList.get(i).costPerKm();
+							currentCity = action.getTask().pickupCity;
+						} else if (action.getType() == ValueType.DELIVER) {
+							costStack += currentCity.distanceTo(action.getTask().deliveryCity) * vehiclesList.get(i).costPerKm();
+							currentCity = action.getTask().deliveryCity;
+						}
+					}
+				}
+				return costStack;
 			}
 		};
 
