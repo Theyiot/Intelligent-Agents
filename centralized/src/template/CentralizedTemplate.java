@@ -61,7 +61,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		// this code is used to get the timeouts
 		LogistSettings ls = null;
 		try {
-			ls = Parsers.parseSettings("config\\settings_default.xml");
+			ls = Parsers.parseSettings("config/settings_default.xml");
 		} catch (Exception exc) {
 			System.out.println("There was a problem loading the configuration file.");
 		}
@@ -84,7 +84,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 
 		// Domains creation
 		Set<TaskValue> values = new HashSet<>();
-		values.add(new TaskValue(null, ValueType.NONE));
+		values.add(new TaskValue());
 		for (Task task : tasks) {
 			values.add(new TaskValue(task, ValueType.PICKUP));
 			values.add(new TaskValue(task, ValueType.DELIVER));
@@ -131,9 +131,9 @@ public class CentralizedTemplate implements CentralizedBehavior {
 				List<PDPVariable.RealizedVariable> realization = new ArrayList<>(2 * tasksSet.size());
 				// Fill first vehicle plan by picking and delivering immediately tasks
 				for (Task task : tasksSet) {
-					realization.set(i, cspVariables.get(i).realize(
+					realization.add(i, cspVariables.get(i).realize(
 							new TaskValue(task, ValueType.PICKUP)));
-					realization.set(i + 1, cspVariables.get(i + 1).realize(
+					realization.add(i + 1, cspVariables.get(i + 1).realize(
 							new TaskValue(task, ValueType.DELIVER)));
 					i += 2;
 				}
@@ -143,7 +143,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 				for (int rows = 0; rows < cVehicles.size() - 1; rows++) {
 					realization = new ArrayList<>();
 					for (int cols = 0; cols < 2 * tasksSet.size(); cols++) {
-						realization.set(cols, cspVariables.get(cols).realize(
+						realization.add(cols, cspVariables.get(cols).realize(
 								new TaskValue(null, ValueType.NONE)));
 					}
 					realizations.add(realization);

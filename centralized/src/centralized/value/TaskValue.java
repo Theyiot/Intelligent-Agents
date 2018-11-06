@@ -14,6 +14,11 @@ public class TaskValue implements Value {
 		this.type = type;
 	}
 	
+	public TaskValue() {
+		this.task = null;
+		this.type = ValueType.NONE;
+	}
+	
 	public Task getTask() {
 		return task;
 	}
@@ -41,13 +46,25 @@ public class TaskValue implements Value {
 			return false;
 		} else {
 			TaskValue otherTaskValue = (TaskValue) other;
-			return task.id == otherTaskValue.getTask().id && otherTaskValue.getType() == type;
+			if (task == null) {
+				if (otherTaskValue.task == null) {
+					return type == otherTaskValue.type;
+				} else {
+					return false;
+				}
+			} else {
+				return task.id == otherTaskValue.getTask().id && otherTaskValue.getType() == type;
+			}
 		}
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(task.id, type);
+		if (task == null) {
+			return Objects.hash(-1, type);
+		} else {
+			return Objects.hash(task.id, type);
+		}
 	}
 	
 	public enum ValueType {

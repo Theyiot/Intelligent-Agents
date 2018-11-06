@@ -7,6 +7,7 @@ import java.util.List;
  * The Assignment interface represent a concrete realization of the variables' set X
  * 
  * @author Amaury Combes
+ * @author Theo Nikles
  *
  */
 public class Assignment<B extends Variable<V>, V extends Value> {
