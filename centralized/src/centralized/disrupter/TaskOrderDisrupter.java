@@ -41,13 +41,11 @@ public class TaskOrderDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		
 		Variable<TaskValue>.RealizedVariable v1 = plan.get(idx1);
 		Variable<TaskValue>.RealizedVariable v2 = plan.get(idx2);
-		TaskValue t1 = (TaskValue)v1.getValue();
-		TaskValue t2 = (TaskValue)v2.getValue();
-		if(t1.getTask().equals(t2.getTask())) {
-			return new HashSet<Assignment<PDPVariable, TaskValue>> ();
-		}
 		
-		Variable<TaskValue>.RealizedVariable v1Prime = null;
+		plan.set(idx1, v2);
+		plan.set(idx2, v1);
+		
+		/*Variable<TaskValue>.RealizedVariable v1Prime = null;
 		int searchDirection = t1.getType() == ValueType.PICKUP ? 1 : -1;
 		int index1;
 		for(index1 = idx1 + searchDirection ; index1 < plan.size() && index1 >= 0 ; index1 += searchDirection) {
@@ -77,7 +75,7 @@ public class TaskOrderDisrupter extends Disrupter<PDPVariable, TaskValue> {
 			plan.set(index1, idx2 < index2 ? v2 : v2Prime);
 			plan.set(Math.min(idx2, index2), v1Prime);
 			plan.set(Math.max(idx2, index2), v1);
-		}
+		}*/
 
 		Set<Assignment<PDPVariable, TaskValue>> set = new HashSet<> ();
 		set.add(newA);
