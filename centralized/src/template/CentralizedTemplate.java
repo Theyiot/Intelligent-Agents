@@ -34,6 +34,7 @@ import problem.csp.primitive.Variable;
 import problem.csp.primitive.Variable.RealizedVariable;
 import problem.csp.resolver.CSPResolver;
 import problem.csp.resolver.SLS;
+import centralized.PDPAssignmentConverter;
 import centralized.PDPConstraintFactory;
 import centralized.PDPVariable;
 import centralized.disrupter.CombineDisrupter;
@@ -157,25 +158,25 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		SLS<PDPVariable, TaskValue> resolver = new SLS<PDPVariable, TaskValue>(initialResolver, disrupter, 0.35, 10000);
 		
 		Assignment<PDPVariable, TaskValue> solution = resolver.resolve(pdpConstraintSatisfaction);
-		
+		List<Plan> logistPlans = PDPAssignmentConverter.toLogistPlan(solution);
 		
 
 		/* End of our code */
 
 //		System.out.println("Agent " + agent.id() + " has tasks " + tasks);
-		Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
+		/*Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
 
 		List<Plan> plans = new ArrayList<Plan>();
 		plans.add(planVehicle1);
 		while (plans.size() < vehicles.size()) {
 			plans.add(Plan.EMPTY);
-		}
+		}*/
 
 		long time_end = System.currentTimeMillis();
 		long duration = time_end - time_start;
 		System.out.println("The plan was generated in " + duration + " milliseconds.");
 
-		return plans;
+		return logistPlans;
 	}
 
 	private Plan naivePlan(Vehicle vehicle, TaskSet tasks) {
