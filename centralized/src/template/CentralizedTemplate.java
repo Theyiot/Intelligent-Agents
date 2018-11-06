@@ -36,6 +36,7 @@ import problem.csp.resolver.CSPResolver;
 import problem.csp.resolver.SLS;
 import centralized.PDPConstraintFactory;
 import centralized.PDPVariable;
+import centralized.disrupter.CombineDisrupter;
 import centralized.value.TaskValue.ValueType;
 import centralized.value.TaskValue;
 
@@ -150,8 +151,14 @@ public class CentralizedTemplate implements CentralizedBehavior {
 				return new Assignment<PDPVariable, TaskValue>(realizations);
 			}
 		};
+		
+		CombineDisrupter disrupter = new CombineDisrupter(pdpConstraintSatisfaction);
 
-		// SLS<TaskValue> resolver = new SLS<TaskValue>(initialResolver, );
+		SLS<PDPVariable, TaskValue> resolver = new SLS<PDPVariable, TaskValue>(initialResolver, disrupter, 0.35, 10000);
+		
+		Assignment<PDPVariable, TaskValue> solution = resolver.resolve(pdpConstraintSatisfaction);
+		
+		
 
 		/* End of our code */
 

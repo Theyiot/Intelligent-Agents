@@ -37,7 +37,7 @@ public abstract class Variable<V extends Value> {
 			this.value = value;
 		}
 		
-		public Value getValue() {
+		public V getValue() {
 			return value;
 		}
 		
