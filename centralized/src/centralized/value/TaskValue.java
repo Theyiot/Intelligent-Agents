@@ -53,7 +53,7 @@ public class TaskValue implements Value {
 					return false;
 				}
 			} else {
-				return task.id == otherTaskValue.getTask().id && otherTaskValue.getType() == type;
+				return otherTaskValue.getType() == type && task.id == otherTaskValue.getTask().id;
 			}
 		}
 	}

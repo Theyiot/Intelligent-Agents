@@ -36,10 +36,7 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		for(int i = 0 ; i < assignment.size() ; i++) {
 			if(i != vehicleIndex) {
 				vehicleDisrupter.setIndex2(i);
-				Set<Assignment<PDPVariable, TaskValue>> tmp = vehicleDisrupter.disrupte(assignment);
-				System.out.println("VehicleSize : " + tmp.size());
-				neighbours.addAll(tmp);
-				//neighbours.addAll(vehicleDisrupter.disrupte(assignment));
+				neighbours.addAll(vehicleDisrupter.disrupte(assignment));
 			}
 		}
 		
@@ -57,10 +54,7 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 				taskOrderDisruper.setIdx1(idx1);
 				for(int idx2 = idx1 + 1 ; idx2 < length ; idx2++) {
 					taskOrderDisruper.setIdx2(idx2);
-					Set<Assignment<PDPVariable, TaskValue>> tmp = taskOrderDisruper.disrupte(assignment);
-					System.out.println("TaskOrderSize : " + tmp.size());
-					neighbours.addAll(tmp);
-					//neighbours.addAll(taskOrderDisruper.disrupte(assignment));
+					neighbours.addAll(taskOrderDisruper.disrupte(assignment));
 				}
 			}
 		}
