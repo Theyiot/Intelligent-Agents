@@ -2,6 +2,7 @@ package centralized.disrupter;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import centralized.PDPVariable;
@@ -36,6 +37,9 @@ public class VehicleDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		List<Variable<TaskValue>.RealizedVariable> plan2 = newA.getPlan(index2);
 		
 		int pickupIndex = 0;
+		do {
+			pickupIndex = new Random().nextInt(plan1.size());
+		} while(((TaskValue)plan1.get(pickupIndex).getValue()).getType() != ValueType.PICKUP);
 		int deliverIndex;
 		TaskValue t = (TaskValue)plan1.get(pickupIndex).getValue();
 		//Finding corresponding deliver task
