@@ -29,8 +29,8 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		PDPVariable.RealizedVariable variable;
 		do {
 			vehicleIndex = (int)Math.random() * assignement.size();
-		} while(((variable = assignement.get(0, vehicleIndex)).getValue()).getType() == ValueType.NONE);
-		TaskValue taskValue = variable.getValue();
+		} while(((TaskValue)(variable = assignement.get(0, vehicleIndex)).getValue()).getType() == ValueType.NONE);
+		TaskValue taskValue = (TaskValue)variable.getValue();
 		
 		vehicleDisrupter.setIndex1(vehicleIndex);
 		//Applying change vehicle operator
@@ -43,7 +43,8 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		
 		//Applying change task order operator
 		int length = 0;
-		while(length < assignement.getPlan(vehicleIndex).size() && ((assignement.get(length, vehicleIndex).getValue())).getType() != ValueType.NONE) {
+		while(length < assignement.getPlan(vehicleIndex).size() &&
+				((TaskValue)(assignement.get(length, vehicleIndex).getValue())).getType() != ValueType.NONE) {
 			length++;
 		}
 		
