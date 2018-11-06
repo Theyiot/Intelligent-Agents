@@ -64,7 +64,7 @@ public class VehicleDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		int lastVariablePlaced = 0;
 		for(int i = 1 ; i < plan1.size() ; i++) {
 			TaskValue taskValue = (TaskValue)plan1.get(i).getValue();
-			if(taskValue.getType() != ValueType.NONE) {
+			if(i != pickupIndex && i != deliverIndex && taskValue.getType() != ValueType.NONE) {
 				plan1.set(lastVariablePlaced++, plan1.get(i));
 			}
 		}

@@ -27,18 +27,19 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		
 		//Choosing a random vehicle
 		int vehicleIndex;
-		PDPVariable.RealizedVariable variable;
 		do {
 			vehicleIndex = new Random().nextInt(assignment.size());
-		} while(((TaskValue)(variable = assignment.get(0, vehicleIndex)).getValue()).getType() == ValueType.NONE);
-		TaskValue taskValue = (TaskValue)variable.getValue();
+		} while(((TaskValue)assignment.get(0, vehicleIndex).getValue()).getType() == ValueType.NONE);
 		
 		vehicleDisrupter.setIndex1(vehicleIndex);
 		//Applying change vehicle operator
-		for(int i = 0 ; i < vehicleIndex ; i++) {
-			if(((PDPVariable)(variable.getParent())).getCapacity() > taskValue.getTask().weight) {
+		for(int i = 0 ; i < assignment.size() ; i++) {
+			if(i != vehicleIndex) {
 				vehicleDisrupter.setIndex2(i);
-				neighbours.addAll(vehicleDisrupter.disrupte(assignment));
+				Set<Assignment<PDPVariable, TaskValue>> tmp = vehicleDisrupter.disrupte(assignment);
+				System.out.println("VehicleSize : " + tmp.size());
+				neighbours.addAll(tmp);
+				//neighbours.addAll(vehicleDisrupter.disrupte(assignment));
 			}
 		}
 		
@@ -53,10 +54,13 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		if(length >= 4) {
 			taskOrderDisruper.setIndex(vehicleIndex);
 			for(int idx1 = 0 ; idx1 < length - 1 ; idx1++) {
+				taskOrderDisruper.setIdx1(idx1);
 				for(int idx2 = idx1 + 1 ; idx2 < length ; idx2++) {
-					taskOrderDisruper.setIdx1(idx1);
 					taskOrderDisruper.setIdx2(idx2);
-					neighbours.addAll(taskOrderDisruper.disrupte(assignment));
+					Set<Assignment<PDPVariable, TaskValue>> tmp = taskOrderDisruper.disrupte(assignment);
+					System.out.println("TaskOrderSize : " + tmp.size());
+					neighbours.addAll(tmp);
+					//neighbours.addAll(taskOrderDisruper.disrupte(assignment));
 				}
 			}
 		}
