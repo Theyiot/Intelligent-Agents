@@ -37,7 +37,6 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 			if(i != vehicleIndex) {
 				vehicleDisrupter.setIndex2(i);
 				neighbours.addAll(vehicleDisrupter.disrupte(assignment));
-				System.out.println(neighbours);
 			}
 		}
 		
@@ -60,7 +59,6 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 			}
 		}
 		
-		System.out.println(neighbours.size());
 		return neighbours;
 	}
 }

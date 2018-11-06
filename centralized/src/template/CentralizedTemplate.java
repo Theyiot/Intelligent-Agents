@@ -183,7 +183,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		
 		CombineDisrupter disrupter = new CombineDisrupter(pdpConstraintSatisfaction);
 
-		SLS<PDPVariable, TaskValue> resolver = new SLS<PDPVariable, TaskValue>(initialResolver, disrupter, 0.35, 2);
+		SLS<PDPVariable, TaskValue> resolver = new SLS<PDPVariable, TaskValue>(initialResolver, disrupter, 0.35, 1000);
 		
 		Assignment<PDPVariable, TaskValue> solution = resolver.resolve(pdpConstraintSatisfaction);
 		List<Plan> logistPlans = PDPAssignmentConverter.toLogistPlan(solution, initialCities);
