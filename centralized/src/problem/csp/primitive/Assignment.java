@@ -3,6 +3,9 @@ package problem.csp.primitive;
 import java.util.ArrayList;
 import java.util.List;
 
+import centralized.PDPVariable;
+import centralized.value.TaskValue.ValueType;
+
 /**
  * The Assignment interface represent a concrete realization of the variables' set X
  * 
@@ -57,5 +60,30 @@ public class Assignment<B extends Variable<V>, V extends Value> {
 	
 	public List<B.RealizedVariable> getPlan(int vehicleIndex) {
 		return realizations.get(vehicleIndex);
+	}
+	
+	@Override
+	public String toString() {
+		String stringRepresentation = "";
+		
+		for (int i=0; i<realizations.size(); ++i) {
+			stringRepresentation += "Vehicule " + i + "\n";
+			
+			for (Variable<V>.RealizedVariable realization: realizations.get(i)) {
+				PDPVariable.RealizedVariable pdpRealization = (PDPVariable.RealizedVariable) realization;
+				if (pdpRealization.getValue().getType() == ValueType.NONE) {
+					stringRepresentation += pdpRealization.getValue().getType().name() + " ";
+				} else {
+					stringRepresentation += pdpRealization.getValue().getType().name() + " " + pdpRealization.getValue().getTask() + " -> ";
+				}
+				
+			}
+			
+			stringRepresentation += "\n";
+		}
+		
+		stringRepresentation += "-------------\n";
+		
+		return stringRepresentation;
 	}
 }
