@@ -32,7 +32,7 @@ public abstract class Variable<V extends Value> {
 		
 		public RealizedVariable(V value) {
 			if (!Variable.this.contains(value)) {
-				throw new IllegalArgumentException("Tried to realized a variable with an illegal value");
+				throw new IllegalArgumentException("Tried to realize a variable with an illegal value");
 			}
 			this.value = value;
 		}

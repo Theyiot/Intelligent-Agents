@@ -1,12 +1,10 @@
 package problem.csp;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import problem.csp.primitive.Assignment;
 import problem.csp.primitive.Constraint;
-import problem.csp.primitive.Domain;
 import problem.csp.primitive.ObjectiveFunction;
 import problem.csp.primitive.Value;
 import problem.csp.primitive.Variable;

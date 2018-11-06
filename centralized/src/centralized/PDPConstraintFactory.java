@@ -7,7 +7,6 @@ import centralized.value.TaskValue;
 import centralized.value.TaskValue.ValueType;
 import problem.csp.primitive.Assignment;
 import problem.csp.primitive.Constraint;
-import problem.csp.primitive.Value;
 
 public class PDPConstraintFactory {
 	private final int inputSize;
@@ -79,7 +78,6 @@ public class PDPConstraintFactory {
 				for (int y = 0; y < vehicleCount; y++) {
 					if (((TaskValue) point.get(0, y).getValue()).getType() == ValueType.DELIVER) {
 						// It is OK for a vehicle to do nothing or to begin by picking a task up
-						System.out.println("C2");
 						return false;
 					}
 				}
@@ -118,7 +116,6 @@ public class PDPConstraintFactory {
 								}
 							}
 							if (!found) {
-								System.out.println("C3");
 								return false;
 							}
 						}
@@ -153,7 +150,6 @@ public class PDPConstraintFactory {
 						if (taskValue.getType() != ValueType.NONE) {
 							if (isNone) {
 								// We found a non-None task after finding a None one
-								System.out.println("C4");
 								return false;
 							}
 						} else {
@@ -190,7 +186,6 @@ public class PDPConstraintFactory {
 						TaskValue taskValue = (TaskValue) (point.get(x, y).getValue());
 						actualWeight += taskValue.getWeight();
 						if (actualWeight > maxCapacity) {
-							System.out.println("C5");
 							return false;
 						}
 					}
@@ -203,7 +198,7 @@ public class PDPConstraintFactory {
 		return constraint;
 	}
 
-	// Verify that all tasks are delivered
+	// Verify that all tasks are delivered once and only once
 	private Constraint<PDPVariable, TaskValue> constraint6() {
 		Constraint<PDPVariable, TaskValue> constraint = new Constraint<PDPVariable, TaskValue>() {
 
@@ -229,7 +224,6 @@ public class PDPConstraintFactory {
 					}
 				}
 				if (deliveredTask != inputSize || deliveredTask != taskValues.size()) {
-					System.out.println("C6");
 					return false;
 				}
 				return true;
