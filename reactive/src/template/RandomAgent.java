@@ -1,4 +1,3 @@
-
 package template;
 
 import java.util.Random;
