@@ -56,6 +56,7 @@ public class CentralizedTemplate implements CentralizedBehavior {
 	private Agent agent;
 	private long timeout_setup;
 	private long timeout_plan;
+	private long setupEnd;
 
 	@Override
 	public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
@@ -76,11 +77,14 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		this.topology = topology;
 		this.distribution = distribution;
 		this.agent = agent;
+		
+		this.setupEnd = System.currentTimeMillis();
 	}
 
 	@Override
 	public List<Plan> plan(List<Vehicle> vehicles, TaskSet tasks) {
 		long time_start = System.currentTimeMillis();
+		long timeout = setupEnd + timeout_plan;
 
 		/* Beginning of our code */
 		final List<Vehicle> vehicleList = new ArrayList<>(vehicles);
@@ -193,22 +197,13 @@ public class CentralizedTemplate implements CentralizedBehavior {
 		
 		CombineDisrupter disrupter = new CombineDisrupter(pdpConstraintSatisfaction);
 
-		SLS<PDPVariable, TaskValue> resolver = new SLS<PDPVariable, TaskValue>(initialResolver, disrupter, 0.3, 30000);
+		SLS<PDPVariable, TaskValue> resolver = new SLS<PDPVariable, TaskValue>(initialResolver, disrupter, 0.3, 30000, timeout);
 		
 		Assignment<PDPVariable, TaskValue> solution = resolver.resolve(pdpConstraintSatisfaction);
 		List<Plan> logistPlans = PDPAssignmentConverter.toLogistPlan(solution, initialCities);
 		
 
 		/* End of our code */
-
-//		System.out.println("Agent " + agent.id() + " has tasks " + tasks);
-		/*Plan planVehicle1 = naivePlan(vehicles.get(0), tasks);
-
-		List<Plan> plans = new ArrayList<Plan>();
-		plans.add(planVehicle1);
-		while (plans.size() < vehicles.size()) {
-			plans.add(Plan.EMPTY);
-		}*/
 
 		long time_end = System.currentTimeMillis();
 		long duration = time_end - time_start;

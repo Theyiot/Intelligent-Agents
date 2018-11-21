@@ -8,5 +8,5 @@ import problem.csp.primitive.Variable;
 public interface CSPResolver<B extends Variable<V>, V extends Value> {
 	
 	public Assignment<B, V> resolve(ConstraintSatisfaction<B, V> cspProblem);
-
+	
 }

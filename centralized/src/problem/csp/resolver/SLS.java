@@ -15,12 +15,14 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 	private final CSPResolver<B, V> initialResolver;
 	private final double stochasticFactor;
 	private final Disrupter<B, V> disrupter;
+	private final long timeout;
 	
-	public SLS(CSPResolver<B, V> initialResolver, Disrupter<B, V> disrupter, double stochasticFactor, int depth) {
+	public SLS(CSPResolver<B, V> initialResolver, Disrupter<B, V> disrupter, double stochasticFactor, int depth, long timeout) {
 		this.initialResolver = initialResolver;
 		this.disrupter = disrupter;
 		this.stochasticFactor = stochasticFactor;
 		this.depth = depth;
+		this.timeout = timeout;
 	}
 	
 	@Override
@@ -29,8 +31,9 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 
 		Assignment<B, V> currentSolution = initialSolution;
 		int currentDepth = 0;
+		long currentTime = System.currentTimeMillis();
 
-		while (currentDepth < depth) {
+		while (currentDepth < depth && timeout - currentTime < 500) {
 			System.out.println("SLS current depth " + currentDepth);
 			// ChooseNeighbours()
 			Set<Assignment<B, V>> newAssignments = disrupter.disrupte(currentSolution);
