@@ -1,9 +1,14 @@
 package template;
 
+import static template.world_representation.action.ActionType.DELIVER;
+import static template.world_representation.action.ActionType.MOVE;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.Random;
 
 import logist.agent.Agent;
@@ -17,15 +22,13 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 import template.algorithm.ValueIteration;
+import template.util.Tuple;
+import template.world_representation.action.DeliverAction;
+import template.world_representation.action.MoveAction;
 import template.world_representation.action.StateAction;
 import template.world_representation.state.EmptyState;
 import template.world_representation.state.State;
 import template.world_representation.state.TaskState;
-
-import static template.world_representation.action.ActionType.*;
-import static template.world_representation.state.StateType.*;
-import template.world_representation.action.MoveAction;
-import template.world_representation.action.DeliverAction;
 
 public class ReactiveTemplate implements ReactiveBehavior {
 
@@ -50,18 +53,19 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		List<State> states = new ArrayList<>();
 		List<StateAction> actions = new ArrayList<>();
 		
-		// Create all states and actions
-		for(City city: cities) {
-			
-			// Create states
-			states.add(new EmptyState(city, topology, td));
-			states.addAll(TaskState.generateTaskStates(city, topology, td));
-			
-			// Create actions
-			actions.add(new MoveAction(city));	
+		List<List<Tuple<Vehicle, City>>> allTuples = generateAllStates(agent.vehicles(), cities);
+		
+		//Create all states and actions
+		List<TaskState> tasks = new ArrayList<> ();
+		for(City cityFrom: cities) {
+			for(City cityTo: cities) {
+				tasks.add(new TaskState(cityFrom, cityTo, topology, td));
+			}
 		}
 		
-		actions.add(new DeliverAction());
+		for(Vehicle vehicle: agent.vehicles()) {
+			actions.add(new DeliverAction(vehicle));
+		}
 		
 		// Value iteration algorithm
 		ValueIteration valueIterationAlgo = new ValueIteration(states, actions, 1e-10, discount);
@@ -72,19 +76,14 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		cityToTaskState = new HashMap<>();
 		
 		for (State state: states) {
-			if (state.getType() == EMPTY) {
-				EmptyState cState = (EmptyState) state;
-				cityToEmptyState.put(cState.getStateLocation(), cState);
-			} else if(state.getType() == NON_EMPTY) {
-				TaskState cState = (TaskState) state;
-				
-				if (cityToTaskState.containsKey(cState.getStateLocation())) {
-					cityToTaskState.get(cState.getStateLocation()).put(cState.getToCity(), cState);
-				} else {
-					Map<City, TaskState> destinationToState = new HashMap<City, TaskState>();
-					destinationToState.put(cState.getToCity(), cState);
-					cityToTaskState.put(cState.getStateLocation(), destinationToState);
-				}
+			TaskState cState = (TaskState) state;
+			
+			if (cityToTaskState.containsKey(cState.getStateLocation())) {
+				cityToTaskState.get(cState.getStateLocation()).put(cState.getToCity(), cState);
+			} else {
+				Map<City, TaskState> destinationToState = new HashMap<City, TaskState>();
+				destinationToState.put(cState.getToCity(), cState);
+				cityToTaskState.put(cState.getStateLocation(), destinationToState);
 			}
 		}
 		
@@ -131,4 +130,42 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		
 		return action;
 	}
+
+	private List<List<Tuple<Vehicle, City>>> generateAllStates(List<Vehicle> vehicles, List<City> cities) {
+		List<List<Tuple<Vehicle, City>>> allCombinations = new ArrayList<> ();
+		for(Vehicle vehicle: vehicles) {
+			List<Tuple<Vehicle, City>> tuples = new ArrayList<> ();
+			//Generates all the tuples
+			for(City city: cities) {
+				tuples.add(new Tuple<>(vehicle, city));
+			}
+			
+			List<List<Tuple<Vehicle, City>>> combinationsTemp = new ArrayList<> (allCombinations);
+			allCombinations = new ArrayList<> ();
+			//Add all the tuples (of the new vehicle) for all the existing combinations
+			for(List<Tuple<Vehicle, City>> combinations : combinationsTemp) {
+				for(Tuple<Vehicle, City> tuple : tuples) {
+					List<Tuple<Vehicle, City>> combinationsToAdd = new ArrayList<> (combinations);
+					combinationsToAdd.add(tuple);
+					allCombinations.add(combinationsToAdd);
+				}
+			}
+			
+			//First iteration needs to manually add the tasks
+			if(allCombinations.size() == 0) {
+				for(Tuple<Vehicle, City> tuple : tuples) {
+					allCombinations.add(Arrays.asList(tuple));	
+				}
+			}
+		}
+		return allCombinations;
+	}
 }
+
+
+
+
+
+
+
+

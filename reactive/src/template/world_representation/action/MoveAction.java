@@ -1,12 +1,13 @@
 package template.world_representation.action;
 
+import logist.simulation.Vehicle;
 import logist.topology.Topology.City;
 
 public class MoveAction extends StateAction {
 	private final City destination;
 	
-	public MoveAction(City destination) {
-		super(ActionType.MOVE);
+	public MoveAction(Vehicle vehicle, City destination) {
+		super(vehicle, ActionType.MOVE);
 		this.destination = destination;
 	}
 	

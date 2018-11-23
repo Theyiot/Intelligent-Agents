@@ -1,61 +1,64 @@
 package template.world_representation.state;
 
-import java.util.List;
-
-import static template.world_representation.state.StateType.EMPTY;
-import static template.world_representation.state.StateType.NON_EMPTY;
 import static template.world_representation.action.ActionType.DELIVER;
 import static template.world_representation.action.ActionType.MOVE;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
+import logist.simulation.Vehicle;
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 import template.util.Tuple;
+import template.world_representation.action.MoveAction;
 import template.world_representation.action.StateAction;
 
 
 public abstract class State {
 	protected final Topology topology;
-	protected final TaskDistribution td; 
-	private final StateType type;
+	protected final TaskDistribution td;
+	protected final List<Tuple<Vehicle, City>> tuples;
+	protected final AuctionedTask task;
 	private double value;
 	private StateAction bestAction = null;
 
-	public State(Topology topology, TaskDistribution td, StateType type) {
+	public State(Topology topology, TaskDistribution td, List<Tuple<Vehicle, City>> tuples, AuctionedTask task) {
 		this.topology = topology;
 		this.td = td;
-		this.type = type;
+		this.tuples = new ArrayList<> (tuples);
+		this.task = task;
 		this.value = new Random().nextDouble();
 	}
 	
-	public abstract double reward(StateAction action);
+	public AuctionedTask getAuctionedTask() {
+		return task;
+	}
 	
-	public abstract boolean isLegal(StateAction action);
-	
-	public abstract City getStateLocation();
-	
-	public abstract Tuple<EmptyState, List<TaskState>> transition(StateAction action);
+	public boolean isLegal(StateAction action) {
+		for(Tuple<Vehicle, City> tuple : tuples) {
+			if(tuple.getLeft().equals(action.getVehicle())) {
+				if (action.type() == MOVE) {
+					MoveAction mAction = (MoveAction) action;
+					return tuple.getRight().hasNeighbor(mAction.getDestination());
+				} else if (action.type() == DELIVER) {
+					return true;
+				} else {
+					throw new IllegalStateException("Illegal branching");
+				}
+			}
+		}
+		return false;
+	}
 	
 	public double T(StateAction action, State otherState) {
 		if(!isLegal(action)) {
 			return 0;
 		}
-		
-		if(otherState.getType() == EMPTY) {
-			return td.probability(otherState.getStateLocation(), null);			
-		} else if (otherState.getType() == NON_EMPTY) {
-			TaskState tState = (TaskState) otherState;
-			return td.probability(tState.getFromCity(), tState.getToCity());
-		} else {
-			throw new IllegalStateException("Illegal branching");
-		}
-	}
-	
-	public StateType getType() {
-		return type;
+
+		AuctionedTask task = otherState.getAuctionedTask();
+		return td.probability(task.getFromCity(), task.getToCity());
 	}
 	
 	public double V() {

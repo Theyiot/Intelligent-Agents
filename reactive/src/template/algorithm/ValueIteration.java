@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import logist.simulation.Vehicle;
 import template.util.Tuple;
 import template.world_representation.action.StateAction;
 import template.world_representation.state.EmptyState;
