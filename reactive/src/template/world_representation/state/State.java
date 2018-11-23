@@ -1,7 +1,7 @@
 package template.world_representation.state;
 
 import static template.world_representation.action.ActionType.DELIVER;
-import static template.world_representation.action.ActionType.MOVE;
+import static template.world_representation.action.ActionType.PICKUP;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,17 +12,17 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 import template.util.Tuple;
-import template.world_representation.action.MoveAction;
-import template.world_representation.action.StateAction;
+import template.world_representation.action.PickupAction;
+import template.world_representation.action.TaskAction;
 
 
-public abstract class State {
+public class State {
 	protected final Topology topology;
 	protected final TaskDistribution td;
 	protected final List<Tuple<Vehicle, City>> tuples;
 	protected final AuctionedTask task;
 	private double value;
-	private StateAction bestAction = null;
+	private TaskAction bestAction = null;
 
 	public State(Topology topology, TaskDistribution td, List<Tuple<Vehicle, City>> tuples, AuctionedTask task) {
 		this.topology = topology;
@@ -36,13 +36,17 @@ public abstract class State {
 		return task;
 	}
 	
-	public boolean isLegal(StateAction action) {
+	public List<Tuple<Vehicle, City>> getTuples() {
+		return tuples;
+	}
+	
+	public boolean isLegal(TaskAction action) {
 		for(Tuple<Vehicle, City> tuple : tuples) {
 			if(tuple.getLeft().equals(action.getVehicle())) {
-				if (action.type() == MOVE) {
-					MoveAction mAction = (MoveAction) action;
+				if (action.getType() == PICKUP) {
+					PickupAction mAction = (PickupAction) action;
 					return tuple.getRight().hasNeighbor(mAction.getDestination());
-				} else if (action.type() == DELIVER) {
+				} else if (action.getType() == DELIVER) {
 					return true;
 				} else {
 					throw new IllegalStateException("Illegal branching");
@@ -52,7 +56,7 @@ public abstract class State {
 		return false;
 	}
 	
-	public double T(StateAction action, State otherState) {
+	public double T(TaskAction action, State otherState) {
 		if(!isLegal(action)) {
 			return 0;
 		}
@@ -69,11 +73,11 @@ public abstract class State {
 		this.value = newValue;
 	}
 	
-	public StateAction getBestAction() {
+	public TaskAction getBestAction() {
 		return bestAction;
 	}
 	
-	public void setBestAction(StateAction newBestAction) {
+	public void setBestAction(TaskAction newBestAction) {
 		this.bestAction = newBestAction;
 	}
 

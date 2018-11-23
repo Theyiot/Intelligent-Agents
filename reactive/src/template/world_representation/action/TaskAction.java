@@ -2,16 +2,16 @@ package template.world_representation.action;
 
 import logist.simulation.Vehicle;
 
-abstract public class StateAction {
+public class TaskAction {
 	private final ActionType type;
 	private final Vehicle vehicle;
 	
-	public StateAction(Vehicle vehicle, ActionType type) {
+	public TaskAction(Vehicle vehicle, ActionType type) {
 		this.vehicle = vehicle;
 		this.type = type;
 	}
 	
-	public ActionType type() {
+	public ActionType getType() {
 		return type;
 	}
 	

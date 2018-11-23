@@ -1,25 +1,22 @@
 package template.algorithm;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import logist.simulation.Vehicle;
 import template.util.Tuple;
-import template.world_representation.action.StateAction;
-import template.world_representation.state.EmptyState;
+import template.world_representation.Transitioner;
+import template.world_representation.action.TaskAction;
 import template.world_representation.state.State;
-import template.world_representation.state.TaskState;
-
-import java.util.HashMap;
 
 public final class ValueIteration {
 	private final List<State> states;
-	private final List<StateAction> actions;
+	private final List<TaskAction> actions;
 	private final double convergenceCriteria;
 	private final double discountFactor;
 	
-	public ValueIteration(List<State> states, List<StateAction> actions, double convergenceCriteria, double discountFactor) {
+	public ValueIteration(List<State> states, List<TaskAction> actions, double convergenceCriteria, double discountFactor) {
 		this.states = states;
 		this.actions = actions;
 		this.convergenceCriteria = convergenceCriteria;
@@ -47,19 +44,19 @@ public final class ValueIteration {
 		List<Double> deltas = new ArrayList<>();
 		
 		for (State state: states) {
-			Tuple<StateAction, Double> iterationReport = stateIteration(state);
+			Tuple<TaskAction, Double> iterationReport = stateIteration(state);
 			deltas.add(Math.abs(iterationReport.getRight()) - snapshot.get(state));
 		}
 		
 		return max(deltas);
 	}
 	
-	private Tuple<StateAction, Double> stateIteration(State state) {
+	private Tuple<TaskAction, Double> stateIteration(State state) {
 		
 		double maxQSA = Double.MIN_VALUE;
-		StateAction bestAction = null;
+		TaskAction bestAction = null;
 		
-		for(StateAction action: actions) {
+		for(TaskAction action: actions) {
 			if (state.isLegal(action)) {
 				double qSA = computeQSA(state, action);
 				
@@ -73,14 +70,15 @@ public final class ValueIteration {
 		state.setBestAction(bestAction);
 		state.setV(maxQSA);
 		
-		return new Tuple<StateAction, Double>(bestAction, maxQSA);
+		return new Tuple<TaskAction, Double>(bestAction, maxQSA);
 	}
 	
-	private double computeQSA(State state, StateAction action) {
+	private double computeQSA(State state, TaskAction action) {
 		
 		double sum = 0;
 		
-		Tuple<EmptyState, List<TaskState>> nextStatesT = state.transition(action);
+		//Tuple<EmptyState, List<TaskState>> nextStatesT = state.transition(action);
+		Tuple<State, List<State>> nextStatesT = Transitioner.getPossibleStates(state);
 		
 		List<State> nextStates = new ArrayList<>();
 		
@@ -95,14 +93,12 @@ public final class ValueIteration {
 				}
 			}
 		}
-		//nextStates.add(nextStatesT.getLeft());
-		//nextStates.addAll(nextStatesT.getRight());
 		
 		for (State nextState: nextStates) {
 			sum += state.T(action, nextState) * nextState.V();
 		}
 		
-		double qSA = state.reward(action) + discountFactor * sum;
+		double qSA = Transitioner.reward(state, action) + discountFactor * sum;
 		
 		return qSA;
 		

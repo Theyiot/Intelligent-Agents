@@ -1,11 +1,7 @@
 package template;
 
-import static template.world_representation.action.ActionType.DELIVER;
-import static template.world_representation.action.ActionType.MOVE;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +9,6 @@ import java.util.Random;
 
 import logist.agent.Agent;
 import logist.behavior.ReactiveBehavior;
-import logist.plan.Action;
 import logist.plan.Action.Move;
 import logist.plan.Action.Pickup;
 import logist.simulation.Vehicle;
@@ -23,12 +18,10 @@ import logist.topology.Topology;
 import logist.topology.Topology.City;
 import template.algorithm.ValueIteration;
 import template.util.Tuple;
-import template.world_representation.action.DeliverAction;
-import template.world_representation.action.MoveAction;
-import template.world_representation.action.StateAction;
-import template.world_representation.state.EmptyState;
+import template.world_representation.action.ActionType;
+import template.world_representation.action.TaskAction;
+import template.world_representation.state.AuctionedTask;
 import template.world_representation.state.State;
-import template.world_representation.state.TaskState;
 
 public class ReactiveTemplate implements ReactiveBehavior {
 
@@ -46,25 +39,35 @@ public class ReactiveTemplate implements ReactiveBehavior {
 
 		// Reads the discount factor from the agents.xml file.
 		// If the property is not present it defaults to 0.95
-		Double discount = agent.readProperty("discount-factor", Double.class,
+		double discount = agent.readProperty("discount-factor", Double.class,
 				0.95);
 		
 		cities = topology.cities();
 		List<State> states = new ArrayList<>();
-		List<StateAction> actions = new ArrayList<>();
+		List<TaskAction> actions = new ArrayList<>();
 		
+		//Create all states
 		List<List<Tuple<Vehicle, City>>> allTuples = generateAllStates(agent.vehicles(), cities);
 		
-		//Create all states and actions
-		List<TaskState> tasks = new ArrayList<> ();
-		for(City cityFrom: cities) {
-			for(City cityTo: cities) {
-				tasks.add(new TaskState(cityFrom, cityTo, topology, td));
+		List<AuctionedTask> tasks = new ArrayList<> ();
+		for(City fromCity: cities) {
+			for(City toCity: cities) {
+				if(!fromCity.equals(toCity)) {
+					tasks.add(new AuctionedTask(fromCity, toCity));	
+				}
 			}
 		}
 		
+		for(List<Tuple<Vehicle, City>> tuple : allTuples) {
+			for(AuctionedTask task : tasks) {
+				states.add(new State(topology, td, tuple, task));
+			}
+		}
+		
+		//Create all actions
 		for(Vehicle vehicle: agent.vehicles()) {
-			actions.add(new DeliverAction(vehicle));
+			actions.add(new TaskAction(vehicle, ActionType.PICKUP));
+			actions.add(new TaskAction(vehicle, ActionType.DELIVER));
 		}
 		
 		// Value iteration algorithm
@@ -76,14 +79,19 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		cityToTaskState = new HashMap<>();
 		
 		for (State state: states) {
-			TaskState cState = (TaskState) state;
-			
-			if (cityToTaskState.containsKey(cState.getStateLocation())) {
-				cityToTaskState.get(cState.getStateLocation()).put(cState.getToCity(), cState);
-			} else {
-				Map<City, TaskState> destinationToState = new HashMap<City, TaskState>();
-				destinationToState.put(cState.getToCity(), cState);
-				cityToTaskState.put(cState.getStateLocation(), destinationToState);
+			if (state.getType() == EMPTY) {
+				EmptyState cState = (EmptyState) state;
+				cityToEmptyState.put(cState.getStateLocation(), cState);
+			} else if(state.getType() == NON_EMPTY) {
+				TaskState cState = (TaskState) state;
+				
+				if (cityToTaskState.containsKey(cState.getStateLocation())) {
+					cityToTaskState.get(cState.getStateLocation()).put(cState.getToCity(), cState);
+				} else {
+					Map<City, TaskState> destinationToState = new HashMap<City, TaskState>();
+					destinationToState.put(cState.getToCity(), cState);
+					cityToTaskState.put(cState.getStateLocation(), destinationToState);
+				}
 			}
 		}
 		
@@ -112,12 +120,12 @@ public class ReactiveTemplate implements ReactiveBehavior {
 			currentState = cityToTaskState.get(vehicle.getCurrentCity()).get(availableTask.deliveryCity);
 		}
 		
-		StateAction bestAction = currentState.getBestAction();
+		Action bestAction = currentState.getBestAction();
 		
 		if (bestAction.type() == DELIVER) {
 			action = new Pickup(availableTask);
 		} else if (bestAction.type() == MOVE) {
-			MoveAction mAction = (MoveAction) bestAction;
+			PickupAction mAction = (PickupAction) bestAction;
 			action = new Move(mAction.getDestination());
 		} else {
 			throw new IllegalStateException();
