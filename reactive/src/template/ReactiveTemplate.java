@@ -9,6 +9,7 @@ import java.util.Random;
 
 import logist.agent.Agent;
 import logist.behavior.ReactiveBehavior;
+import logist.plan.Action;
 import logist.plan.Action.Move;
 import logist.plan.Action.Pickup;
 import logist.simulation.Vehicle;
@@ -18,6 +19,7 @@ import logist.topology.Topology;
 import logist.topology.Topology.City;
 import template.algorithm.ValueIteration;
 import template.util.Tuple;
+import template.world_representation.Transitioner;
 import template.world_representation.action.ActionType;
 import template.world_representation.action.TaskAction;
 import template.world_representation.state.AuctionedTask;
@@ -31,8 +33,8 @@ public class ReactiveTemplate implements ReactiveBehavior {
 	private Agent myAgent;
 	private List<City> cities;
 	
-	private Map<City, EmptyState> cityToEmptyState;
-	private Map<City, Map<City, TaskState>> cityToTaskState;
+//	private Map<City, EmptyState> cityToEmptyState;
+//	private Map<City, Map<City, TaskState>> cityToTaskState;
 
 	@Override
 	public void setup(Topology topology, TaskDistribution td, Agent agent) {
@@ -71,11 +73,11 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		}
 		
 		// Value iteration algorithm
-		ValueIteration valueIterationAlgo = new ValueIteration(states, actions, 1e-10, discount);
+		ValueIteration valueIterationAlgo = new ValueIteration(states, actions, new Transitioner(states, cities), -10, discount);
 		valueIterationAlgo.valueIteration();
 		
 		// Create mapping from city to states. Required to link our model to the logist interface
-		cityToEmptyState = new HashMap<>();
+		/*cityToEmptyState = new HashMap<>();
 		cityToTaskState = new HashMap<>();
 		
 		for (State state: states) {
@@ -93,7 +95,7 @@ public class ReactiveTemplate implements ReactiveBehavior {
 					cityToTaskState.put(cState.getStateLocation(), destinationToState);
 				}
 			}
-		}
+		}*/
 		
 		this.random = new Random();
 		this.pPickup = discount;
@@ -103,11 +105,11 @@ public class ReactiveTemplate implements ReactiveBehavior {
 
 	@Override
 	public Action act(Vehicle vehicle, Task availableTask) {
-		Action action;
+		Action action = null;
 		
 		State currentState = null;
 		
-		if (availableTask == null) {
+		/*if (availableTask == null) {
 			currentState = cityToEmptyState.get(vehicle.getCurrentCity());
 		} else {
 			if (!cityToTaskState.containsKey(vehicle.getCurrentCity())) {
@@ -118,18 +120,18 @@ public class ReactiveTemplate implements ReactiveBehavior {
 				
 			}
 			currentState = cityToTaskState.get(vehicle.getCurrentCity()).get(availableTask.deliveryCity);
-		}
+		}*/
 		
-		Action bestAction = currentState.getBestAction();
+		TaskAction bestAction = currentState.getBestAction();
 		
-		if (bestAction.type() == DELIVER) {
+		/*if (bestAction.type() == DELIVER) {
 			action = new Pickup(availableTask);
 		} else if (bestAction.type() == MOVE) {
-			PickupAction mAction = (PickupAction) bestAction;
+			MoveAction mAction = (MoveAction) bestAction;
 			action = new Move(mAction.getDestination());
 		} else {
 			throw new IllegalStateException();
-		}
+		}*/
 		
 		if (numActions >= 1) {
 			System.out.println("The total profit after "+numActions+" actions is "+myAgent.getTotalProfit()+" (average profit: "+(myAgent.getTotalProfit() / (double)numActions)+")");

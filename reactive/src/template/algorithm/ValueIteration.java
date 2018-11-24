@@ -13,12 +13,15 @@ import template.world_representation.state.State;
 public final class ValueIteration {
 	private final List<State> states;
 	private final List<TaskAction> actions;
+	private final Transitioner transitioner;
 	private final double convergenceCriteria;
 	private final double discountFactor;
 	
-	public ValueIteration(List<State> states, List<TaskAction> actions, double convergenceCriteria, double discountFactor) {
+	public ValueIteration(List<State> states, List<TaskAction> actions, Transitioner transitioner, 
+			double convergenceCriteria, double discountFactor) {
 		this.states = states;
 		this.actions = actions;
+		this.transitioner = transitioner;
 		this.convergenceCriteria = convergenceCriteria;
 		this.discountFactor = discountFactor;
 	}
@@ -78,7 +81,7 @@ public final class ValueIteration {
 		double sum = 0;
 		
 		//Tuple<EmptyState, List<TaskState>> nextStatesT = state.transition(action);
-		Tuple<State, List<State>> nextStatesT = Transitioner.getPossibleStates(state);
+		Tuple<State, List<State>> nextStatesT = transitioner.getPossibleStatesFrom(state);
 		
 		List<State> nextStates = new ArrayList<>();
 		

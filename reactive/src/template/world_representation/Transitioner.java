@@ -1,31 +1,50 @@
 package template.world_representation;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import logist.simulation.Vehicle;
-import logist.task.Task;
-import logist.topology.Topology;
 import logist.topology.Topology.City;
 import template.util.Tuple;
-import template.world_representation.action.TaskAction;
 import template.world_representation.action.ActionType;
+import template.world_representation.action.TaskAction;
+import template.world_representation.state.AuctionedTask;
 import template.world_representation.state.State;
 
 public class Transitioner {
+	private final List<State> states;
+	private final List<City> cities;
 	
-	public static Tuple<Double, State> transitions(State state, TaskAction action) {
-		Tuple<Double, State> transition = null;
+	public Transitioner(List<State> states, List<City> cities) {
+		this.states = new ArrayList<> (states);
+		this.cities = new ArrayList<> (cities);
+	}
+	
+	public Tuple<Double, Set<State>> transitions(State state, TaskAction action) {
+		Set<State> newStates = new HashSet<> ();
 
-		if (action.getType() == ActionType.PICKUP) {
-			
-		} else if (action.getType() == ActionType.DELIVER) {
-			
+		if (action.getType() == ActionType.PICKUP || action.getType() == ActionType.DELIVER) {
+			AuctionedTask task = state.getAuctionedTask();
+			Vehicle vehicle = action.getVehicle();
+			List<Tuple<Vehicle, City>> newTuples = state.getTuples();
+			for(int i = 0 ; i < newTuples.size() ; i++) {
+				if(newTuples.get(i).getLeft().equals(vehicle)) {
+					City newCity = action.getType() == ActionType.PICKUP ? task.getFromCity() : task.getToCity();
+					newTuples.set(i, new Tuple<> (vehicle, newCity));
+				}
+			}
+			for(State s : states) {
+				if(s.getTuples().equals(newTuples)) {
+					newStates.add(s);
+				}
+			}
 		} else {
 			throw new IllegalStateException("Switch case is invalid");
 		}
 
-		return transition;
+		return new Tuple<> (reward(state, action), newStates);
 	}
 	
 	public static Double reward(State state, TaskAction action) {
@@ -37,7 +56,13 @@ public class Transitioner {
 		throw new IllegalStateException("Trying to find reward of an unknown vehicle");
 	}
 	
-	public static Tuple<State, List<State>> getPossibleStates(State state) {
+	public Tuple<State, List<State>> getPossibleStatesFrom(State state) {
+		List<State> legalStates = new ArrayList<> ();
+		for(State s : states) {
+			if(isValidNewState(state, s)) {
+				legalStates.add(s);
+			}
+		}
 		List<State> newStates = new ArrayList<> ();
 		for(City city : new ArrayList<City> ()) {
 			List<Tuple<Vehicle, City>> tuples = state.getTuples();
@@ -50,41 +75,21 @@ public class Transitioner {
 		}
 		return new Tuple<> (state, newStates);
 	}
-
-	private static Tuple<Double, State> transition(State state, PickupAction action) {
-		City location = state.getLocation();
-		Task task = action.getTask();
-		City taskPickupLocation = task.pickupCity;
-
-		if (state.getWorldTasks().contains(task) && location.equals(taskPickupLocation) && 
-				state.getCarryingWeight() + task.weight <= state.getWeightCapacity()) {
-			State newState = new State(state, task, ActionType.PICKUP);
-			Double reward = action.getWeight();
-			return new Tuple<Double, State>(reward, newState);
-		} else {
-			throw new IllegalTransitionException(
-					"Tried to perform illegal pickup " + task + " at location " + state.getLocation());
+	
+	private boolean isValidNewState(State initial, State end) {
+		List<Tuple<Vehicle, City>> initTuples = initial.getTuples();
+		List<Tuple<Vehicle, City>> endTuples = end.getTuples();
+		int counter = 0;
+		for(int i = 0 ; i < initTuples.size() ; i++) {
+			if(!initTuples.get(i).getLeft().equals(endTuples.get(i).getLeft())) {
+				System.out.println("Unordered tuples");
+			} else if(!initTuples.get(i).getRight().equals(endTuples.get(i).getRight())) {
+				if(!initTuples.get(i).getRight().hasNeighbor(endTuples.get(i).getRight())) {
+					return false;
+				}
+				counter++;
+			}
 		}
-
-	}
-
-	private static Tuple<Double, State> transition(State state, DeliverAction action) {
-		City location = state.getLocation();
-		Task task = action.getTask();
-		City taskDeliveryLocation = task.deliveryCity;
-
-		if (state.getHoldingTasks().contains(task) && location.equals(taskDeliveryLocation)) {
-			State newState = new State(state, task, ActionType.DELIVER);
-			Double reward = (double) action.getWeight();
-			
-			// This line to maximise the reward
-			// return new Tuple<Double, State>(reward, newState);
-			
-			// This line to minimize the cost
-			return new Tuple<Double, State>(reward, newState);
-		} else {
-			throw new IllegalTransitionException(
-					"Tried to perform illegal delivery " + task + " at location " + state.getLocation());
-		}
+		return counter == 1;
 	}
 }

@@ -5,6 +5,7 @@ import static template.world_representation.action.ActionType.PICKUP;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import logist.simulation.Vehicle;
@@ -12,7 +13,6 @@ import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
 import template.util.Tuple;
-import template.world_representation.action.PickupAction;
 import template.world_representation.action.TaskAction;
 
 
@@ -43,17 +43,12 @@ public class State {
 	public boolean isLegal(TaskAction action) {
 		for(Tuple<Vehicle, City> tuple : tuples) {
 			if(tuple.getLeft().equals(action.getVehicle())) {
-				if (action.getType() == PICKUP) {
-					PickupAction mAction = (PickupAction) action;
-					return tuple.getRight().hasNeighbor(mAction.getDestination());
-				} else if (action.getType() == DELIVER) {
+				if (action.getType() == PICKUP || action.getType() == DELIVER) {
 					return true;
-				} else {
-					throw new IllegalStateException("Illegal branching");
 				}
 			}
 		}
-		return false;
+		throw new IllegalStateException("Want to do action for an unknown vehicle");
 	}
 	
 	public double T(TaskAction action, State otherState) {
@@ -81,4 +76,28 @@ public class State {
 		this.bestAction = newBestAction;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof State) {
+			State other = (State)o;
+			List<Tuple<Vehicle, City>> oTuples = other.getTuples();
+			if(oTuples == null || other.getTuples().size() != tuples.size() ||
+					!other.getAuctionedTask().equals(task)) {
+				return false;
+			}
+			for(int i = 0 ; i < this.getTuples().size() ; i++) {
+				Tuple<Vehicle, City> tuple = oTuples.get(i);
+				if(!tuple.getLeft().equals(tuples.get(i).getLeft()) ||
+						!tuple.getRight().equals(tuples.get(i).getRight())) {
+					return false;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(tuples, task);
+	}
 }
