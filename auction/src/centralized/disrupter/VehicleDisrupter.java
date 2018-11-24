@@ -2,7 +2,6 @@ package centralized.disrupter;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import centralized.PDPVariable;
@@ -12,6 +11,7 @@ import problem.csp.ConstraintSatisfaction;
 import problem.csp.primitive.Assignment;
 import problem.csp.primitive.Variable;
 import problem.csp.resolver.Disrupter;
+import template.AuctionTemplate;
 
 public class VehicleDisrupter extends Disrupter<PDPVariable, TaskValue> {
 	private int index1;
@@ -38,7 +38,7 @@ public class VehicleDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		
 		int pickupIndex = 0;
 		do {
-			pickupIndex = new Random().nextInt(plan1.size());
+			pickupIndex = AuctionTemplate.RANDOM.nextInt(plan1.size());
 		} while(((TaskValue)plan1.get(pickupIndex).getValue()).getType() != ValueType.PICKUP);
 		int deliverIndex;
 		TaskValue t = (TaskValue)plan1.get(pickupIndex).getValue();

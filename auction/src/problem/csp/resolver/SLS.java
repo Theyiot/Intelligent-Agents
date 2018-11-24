@@ -9,6 +9,7 @@ import problem.csp.ConstraintSatisfaction;
 import problem.csp.primitive.Assignment;
 import problem.csp.primitive.Value;
 import problem.csp.primitive.Variable;
+import template.AuctionTemplate;
 
 public final class SLS<B extends Variable<V>, V extends Value> implements CSPResolver<B, V> {
 	private final int depth;
@@ -41,7 +42,7 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 			Assignment<B, V> newAssignment = chooseBest(newAssignments, problem);
 
 			// LocalChoice() - part 2 (stochasticity)
-			if (new Random().nextDouble() <= stochasticFactor) {
+			if (AuctionTemplate.RANDOM.nextDouble() <= stochasticFactor) {
 				currentSolution = newAssignment;
 			}
 			
@@ -63,7 +64,7 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 			
 			// TODO WARNING should we check that the new assignment is better than the previous one ?
 			// LocalChoice() - part 2 (stochasticity)
-			if (new Random().nextDouble() <= stochasticFactor) {
+			if (AuctionTemplate.RANDOM.nextDouble() <= stochasticFactor) {
 				return recursiveResolution(problem, depth+1, newAssignment);
 			} else {
 				return recursiveResolution(problem, depth+1, currentSolution);
@@ -90,7 +91,7 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 		}
 		
 		// Pick and return minimum assignment by cost
-		return new ArrayList<>(minAssignmentByCost).get(new Random().nextInt(minAssignmentByCost.size()));
+		return new ArrayList<>(minAssignmentByCost).get(AuctionTemplate.RANDOM.nextInt(minAssignmentByCost.size()));
 	}
 
 }

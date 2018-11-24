@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import reactive.util.Tuple;
+import util.Tuple;
 import reactive.world_representation.Transitioner;
 import reactive.world_representation.action.TaskAction;
 import reactive.world_representation.state.State;

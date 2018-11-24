@@ -7,7 +7,7 @@ import java.util.Set;
 
 import logist.simulation.Vehicle;
 import logist.topology.Topology.City;
-import reactive.util.Tuple;
+import util.Tuple;
 import reactive.world_representation.action.ActionType;
 import reactive.world_representation.action.TaskAction;
 import reactive.world_representation.state.AuctionedTask;

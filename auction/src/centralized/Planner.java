@@ -24,13 +24,17 @@ import problem.csp.primitive.Domain;
 import problem.csp.primitive.ObjectiveFunction;
 import problem.csp.resolver.CSPResolver;
 import problem.csp.resolver.SLS;
+import reactive.PartialStateEvaluator;
+import template.AuctionTemplate;
 import util.Tuple;
 
 public final class Planner {
 	private final List<Vehicle> vehicles;
+	private final PartialStateEvaluator evaluator;
 
-	public Planner(final List<Vehicle> vehicles) {
+	public Planner(final List<Vehicle> vehicles, PartialStateEvaluator evaluator) {
 		this.vehicles = vehicles;
+		this.evaluator = evaluator;
 	}
 
 	public Tuple<Tuple<Double, Double>, List<Plan>> plan(Set<Task> tasks, final int roundNumber, long timeout) {
@@ -125,7 +129,7 @@ public final class Planner {
 
 				// Fill first vehicle plan by picking and delivering immediately tasks
 				for (Task task : tasksSet) {
-					int vehicleChoice = new Random().nextInt(vehicleCount);
+					int vehicleChoice = AuctionTemplate.RANDOM.nextInt(vehicleCount);
 					realizations.get(vehicleChoice)
 							.add(cspVariables.get(vehicleCount * vehicleChoice + filledCount.get(vehicleChoice))
 									.realize(new TaskValue(task, ValueType.PICKUP)));
@@ -193,10 +197,9 @@ public final class Planner {
 
 			finalStateLocation.add(city);
 		}
-
+	
 		// TODO add value iteration fetch
-
-		return 0;
+		return evaluator.valueAt(finalStateLocation);
 	}
 
 }

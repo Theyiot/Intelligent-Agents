@@ -10,6 +10,7 @@ import centralized.value.TaskValue.ValueType;
 import problem.csp.ConstraintSatisfaction;
 import problem.csp.primitive.Assignment;
 import problem.csp.resolver.Disrupter;
+import template.AuctionTemplate;
 
 public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 	private final VehicleDisrupter vehicleDisrupter;
@@ -28,7 +29,7 @@ public class CombineDisrupter extends Disrupter<PDPVariable, TaskValue> {
 		//Choosing a random vehicle
 		int vehicleIndex;
 		do {
-			vehicleIndex = new Random().nextInt(assignment.size());
+			vehicleIndex = AuctionTemplate.RANDOM.nextInt(assignment.size());
 		} while(((TaskValue)assignment.get(0, vehicleIndex).getValue()).getType() == ValueType.NONE);
 		
 		vehicleDisrupter.setIndex1(vehicleIndex);

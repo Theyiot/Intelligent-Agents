@@ -2,6 +2,7 @@ package template;
 
 //the list of imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,13 @@ import problem.csp.primitive.Domain;
 import problem.csp.primitive.ObjectiveFunction;
 import problem.csp.resolver.CSPResolver;
 import problem.csp.resolver.SLS;
+import reactive.PartialStateEvaluator;
+import reactive.algorithm.ValueIteration;
+import reactive.world_representation.Transitioner;
+import reactive.world_representation.action.ActionType;
+import reactive.world_representation.action.TaskAction;
+import reactive.world_representation.state.AuctionedTask;
+import reactive.world_representation.state.State;
 import util.Tuple;
 
 /**
@@ -45,15 +53,15 @@ import util.Tuple;
  */
 @SuppressWarnings("unused")
 public class AuctionTemplate implements AuctionBehavior {
+	public static Random RANDOM;
 
 	private Topology topology;
 	private TaskDistribution distribution;
 	private Agent agent;
-	private Random random;
 	private List<Vehicle> vehicles;
 
 	private Bidder bidder;
-	private Planner planner; 
+	private Planner planner;
 	private long setupEnd;
 	private long lastBidEnd;
 	private Set<Task> ownedTasks;
@@ -65,6 +73,7 @@ public class AuctionTemplate implements AuctionBehavior {
 
 	@Override
 	public void setup(Topology topology, TaskDistribution distribution, Agent agent) {
+		long setupStart = System.currentTimeMillis();
 
 		this.topology = topology;
 		this.distribution = distribution;
@@ -72,10 +81,12 @@ public class AuctionTemplate implements AuctionBehavior {
 		this.vehicles = agent.vehicles();
 
 		long seed = agent.id();
-		this.random = new Random(seed);
-		this.planner = new Planner(vehicles);
+		PartialStateEvaluator evaluator = new PartialStateEvaluator(valueIteration(), distribution, topology.cities().size());
+		this.planner = new Planner(vehicles, evaluator);
 		this.bidder = new Bidder(planner);
 		ownedTasks = new HashSet<>();
+
+		RANDOM = new Random(seed);
 
 		// this code is used to get the timeouts
 		LogistSettings ls = null;
@@ -104,9 +115,9 @@ public class AuctionTemplate implements AuctionBehavior {
 	@Override
 	public Long askPrice(Task task) {
 		long currentTime = System.currentTimeMillis();
-		
+
 		long bid = bidder.bid(task, currentTime, timeout_bid);
-		
+
 		return bid;
 	}
 
@@ -118,7 +129,75 @@ public class AuctionTemplate implements AuctionBehavior {
 		Set<Task> currentTasks = new HashSet<>(tasks);
 		// -1 convention for no future anticipation
 		Tuple<Tuple<Double, Double>, List<Plan>> optimizedPlan = planner.plan(currentTasks, -1, timeout);
-		
+
 		return optimizedPlan.getRight();
+	}
+
+	private Set<State> valueIteration() {
+		
+		List<City> cities = topology.cities();
+		List<State> states = new ArrayList<>();
+		List<TaskAction> actions = new ArrayList<>();
+
+		// Create all states
+		List<List<Tuple<Vehicle, City>>> allTuples = generateAllStates(agent.vehicles(), cities);
+
+		List<AuctionedTask> tasks = new ArrayList<>();
+		for (City fromCity : cities) {
+			for (City toCity : cities) {
+				if (!fromCity.equals(toCity)) {
+					tasks.add(new AuctionedTask(fromCity, toCity));
+				}
+			}
+		}
+
+		for (List<Tuple<Vehicle, City>> tuple : allTuples) {
+			for (AuctionedTask task : tasks) {
+				states.add(new State(topology, distribution, tuple, task));
+			}
+		}
+
+		// Create all actions
+		for (Vehicle vehicle : agent.vehicles()) {
+			actions.add(new TaskAction(vehicle, ActionType.PICKUP));
+			actions.add(new TaskAction(vehicle, ActionType.DELIVER));
+		}
+
+		// Value iteration algorithm
+		ValueIteration valueIterationAlgo = new ValueIteration(states, actions, new Transitioner(states, cities), 1e-10,
+				0.95);
+		valueIterationAlgo.valueIteration();
+		
+		return new HashSet<>(states);
+	}
+	
+	private List<List<Tuple<Vehicle, City>>> generateAllStates(List<Vehicle> vehicles, List<City> cities) {
+		List<List<Tuple<Vehicle, City>>> allCombinations = new ArrayList<> ();
+		for(Vehicle vehicle: vehicles) {
+			List<Tuple<Vehicle, City>> tuples = new ArrayList<> ();
+			//Generates all the tuples
+			for(City city: cities) {
+				tuples.add(new Tuple<>(vehicle, city));
+			}
+			
+			List<List<Tuple<Vehicle, City>>> combinationsTemp = new ArrayList<> (allCombinations);
+			allCombinations = new ArrayList<> ();
+			//Add all the tuples (of the new vehicle) for all the existing combinations
+			for(List<Tuple<Vehicle, City>> combinations : combinationsTemp) {
+				for(Tuple<Vehicle, City> tuple : tuples) {
+					List<Tuple<Vehicle, City>> combinationsToAdd = new ArrayList<> (combinations);
+					combinationsToAdd.add(tuple);
+					allCombinations.add(combinationsToAdd);
+				}
+			}
+			
+			//First iteration needs to manually add the tasks
+			if(allCombinations.size() == 0) {
+				for(Tuple<Vehicle, City> tuple : tuples) {
+					allCombinations.add(Arrays.asList(tuple));	
+				}
+			}
+		}
+		return allCombinations;
 	}
 }

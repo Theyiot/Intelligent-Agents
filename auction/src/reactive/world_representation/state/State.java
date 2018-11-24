@@ -12,8 +12,8 @@ import logist.simulation.Vehicle;
 import logist.task.TaskDistribution;
 import logist.topology.Topology;
 import logist.topology.Topology.City;
-import reactive.util.Tuple;
 import reactive.world_representation.action.TaskAction;
+import util.Tuple;
 
 
 public class State {
@@ -40,6 +40,16 @@ public class State {
 		return tuples;
 	}
 	
+	public List<City> getCities() {
+		List<City> cities = new ArrayList<>();
+		
+		for (Tuple<Vehicle, City> tuple: tuples) {
+			cities.add(tuple.getRight());
+		}
+		
+		return cities;
+	}
+	
 	public boolean isLegal(TaskAction action) {
 		for(Tuple<Vehicle, City> tuple : tuples) {
 			if(tuple.getLeft().equals(action.getVehicle())) {
@@ -57,7 +67,7 @@ public class State {
 		}
 
 		AuctionedTask task = otherState.getAuctionedTask();
-		return td.probability(task.getFromCity(), task.getToCity());
+		return (1.0 / (double) topology.cities().size()) * td.probability(task.getFromCity(), task.getToCity());
 	}
 	
 	public double V() {
