@@ -89,9 +89,10 @@ public class AuctionTemplate implements AuctionBehavior {
 		RANDOM = new Random(seed);
 
 		// this code is used to get the timeouts
+		System.out.println("IN");
 		LogistSettings ls = null;
 		try {
-			ls = Parsers.parseSettings("config/settings_default.xml");
+			ls = Parsers.parseSettings("./config/settings_auction.xml");
 		} catch (Exception exc) {
 			System.out.println("There was a problem loading the configuration file.");
 		}
@@ -165,7 +166,7 @@ public class AuctionTemplate implements AuctionBehavior {
 
 		// Value iteration algorithm
 		ValueIteration valueIterationAlgo = new ValueIteration(states, actions, new Transitioner(states, cities), 1e-10,
-				0.95);
+				0.2);
 		valueIterationAlgo.valueIteration();
 		
 		return new HashSet<>(states);

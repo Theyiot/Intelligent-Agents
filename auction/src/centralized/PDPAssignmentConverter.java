@@ -25,7 +25,7 @@ public class PDPAssignmentConverter {
 			
 			List<PDPVariable.RealizedVariable> cspPlan = cspPlans.get(i);
 			
-			if (cspPlan.get(0).getValue().getType() == ValueType.NONE) {
+			if (cspPlan.size() == 0 || cspPlan.get(0).getValue().getType() == ValueType.NONE) {
 				logistPlans.add(Plan.EMPTY);
 			} else {
 				
