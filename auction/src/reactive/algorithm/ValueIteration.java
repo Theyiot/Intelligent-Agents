@@ -31,10 +31,14 @@ public final class ValueIteration {
 		
 		int numberOfIteration = 0;
 		
+		long startTime = System.currentTimeMillis();
 		while (delta > convergenceCriteria) {
 			++numberOfIteration;
 			delta = iteration();
 		}
+		long endTime = System.currentTimeMillis();
+		
+		System.out.println("The calculations took " + (endTime - startTime) + "ms");
 		
 		System.out.println("Value iteration converged in " + numberOfIteration + " steps.");
 		

@@ -159,12 +159,11 @@ public class AuctionTemplate implements AuctionBehavior {
 
 		// Create all actions
 		for (Vehicle vehicle : agent.vehicles()) {
-			actions.add(new TaskAction(vehicle, ActionType.PICKUP));
-			actions.add(new TaskAction(vehicle, ActionType.DELIVER));
+			actions.add(new TaskAction(vehicle));
 		}
 
 		// Value iteration algorithm
-		ValueIteration valueIterationAlgo = new ValueIteration(states, actions, new Transitioner(states, cities), 1e-10,
+		ValueIteration valueIterationAlgo = new ValueIteration(states, actions, new Transitioner(states), 1e-10,
 				0.2);
 		valueIterationAlgo.valueIteration();
 		
