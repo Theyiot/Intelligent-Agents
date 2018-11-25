@@ -83,7 +83,7 @@ public class AuctionTemplate implements AuctionBehavior {
 		long seed = agent.id();
 		PartialStateEvaluator evaluator = new PartialStateEvaluator(valueIteration(), distribution, topology.cities().size());
 		this.planner = new Planner(vehicles, evaluator);
-		this.bidder = new Bidder(planner);
+		this.bidder = new Bidder(planner, agent.id());
 		ownedTasks = new HashSet<>();
 
 		RANDOM = new Random(seed);
@@ -130,7 +130,7 @@ public class AuctionTemplate implements AuctionBehavior {
 		Set<Task> currentTasks = new HashSet<>(tasks);
 		// -1 convention for no future anticipation
 		Tuple<Tuple<Double, Double>, List<Plan>> optimizedPlan = planner.plan(currentTasks, -1, timeout);
-
+	
 		return optimizedPlan.getRight();
 	}
 

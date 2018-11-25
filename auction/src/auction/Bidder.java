@@ -14,12 +14,14 @@ public class Bidder {
 	private int roundNumber;
 	private Set<Task> ownedTasks;
 	private Planner planner;
+	private int agentId;
 
-	public Bidder(Planner planner) {
+	public Bidder(Planner planner, int agentId) {
 		this.greedFactor = 1;
 		this.roundNumber = 0;
 		this.ownedTasks = new HashSet<>();
 		this.planner = planner;
+		this.agentId = agentId;
 	}
 
 	public long bid(Task newTask, long startTime, long bidTimeout) {
@@ -51,7 +53,11 @@ public class Bidder {
 	}
 
 	public void acknowledgeBidResult(Task previous, int winner, Long[] bids) {
+		if (winner == agentId) {
+			ownedTasks.add(previous);
+		}
 
+		roundNumber += 1;
 	}
 
 }
