@@ -30,7 +30,7 @@ public class Bidder {
 		Set<Task> fullTasks = new HashSet<>();
 		fullTasks.addAll(ownedTasks);
 		fullTasks.add(newTask);
-		Tuple<Tuple<Double, Double>, List<Plan>> fullPlanResult = planner.plan(fullTasks, roundNumber, (long) Math.floor(startTime + bidTimeout / 2.0), 50);
+		Tuple<Tuple<Double, Double>, List<Plan>> fullPlanResult = planner.plan(fullTasks, roundNumber, (long) Math.floor(startTime + bidTimeout / 2.0), 100);
 		double fullPlanCost = fullPlanResult.getLeft().getLeft();
 		double fullPlanFutureCostEstimation = fullPlanResult.getLeft().getRight();
 		List<Plan> fullPlan = fullPlanResult.getRight(); 
@@ -38,7 +38,7 @@ public class Bidder {
 		// Compute "best" plan with currently owned task (room for optimization here)
 		Set<Task> currentTasks = new HashSet<>();
 		currentTasks.addAll(ownedTasks);
-		Tuple<Tuple<Double, Double>, List<Plan>> planResult = planner.plan(currentTasks, roundNumber, (long) Math.floor(startTime + bidTimeout), 50);
+		Tuple<Tuple<Double, Double>, List<Plan>> planResult = planner.plan(currentTasks, roundNumber, (long) Math.floor(startTime + bidTimeout), 100);
 		double planCost = planResult.getLeft().getLeft();
 		double planFutureCostEstimation = planResult.getLeft().getRight();
 		List<Plan> plan = planResult.getRight();
@@ -47,9 +47,6 @@ public class Bidder {
 			System.out.println("Warning plan with new task (" + fullPlanCost + ") was cheaper than plan with only owned tasks (" + planCost + ")");
 		}
 		
-		System.out.println("Future full plan cost estimation " + fullPlanFutureCostEstimation);
-		System.out.println("Future plan cost estimation " + planFutureCostEstimation);
-		
 		//double respectiveDiff = fullPlanCost - planCost + (fullPlanFutureCostEstimation - planFutureCostEstimation);
 		double respectiveDiff = fullPlanCost - planCost;
 		double bid = greedFactor * Math.max(respectiveDiff, 0);
@@ -57,7 +54,6 @@ public class Bidder {
 		if (bid == 0) {
 			bid = lastBid;
 		}
-		System.out.println("Bid " + bid);
 		
 		long finalBid = (long) Math.ceil(bid);
 		lastBid = finalBid;
@@ -68,7 +64,6 @@ public class Bidder {
 	public void acknowledgeBidResult(Task previous, int winner, Long[] bids) {
 		if (winner == agentId) {
 			ownedTasks.add(previous);
-			System.out.println("Won");
 		}
 		
 		long minBid = Long.MAX_VALUE;
@@ -81,15 +76,6 @@ public class Bidder {
 			double bidRatio = ((double) minBid) / ((double) lastBid);
 			greedFactor = (bidRatio - 0.01) * greedFactor;
 		} else {
-			/*long secondMinBid = Long.MAX_VALUE;
-			for (int i=0; i < bids.length; ++i) {
-				if (bids[i] != minBid) {
-					secondMinBid = Math.min(bids[i], secondMinBid);
-				}
-			}
-			
-			double bidRatio = ((double) secondMinBid) / ((double) lastBid);
-			greedFactor = (bidRatio - 0.01) * greedFactor;*/
 			greedFactor = greedFactor * 1.05;
 		}	
 		
