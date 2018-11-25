@@ -10,14 +10,15 @@ import logist.task.Task;
 import util.Tuple;
 
 public class Bidder {
-	private float greedFactor;
+	private double greedFactor;
 	private int roundNumber;
 	private Set<Task> ownedTasks;
 	private Planner planner;
 	private int agentId;
+	private long lastBid;
 
 	public Bidder(Planner planner, int agentId) {
-		this.greedFactor = 1;
+		this.greedFactor =  1.1;
 		this.roundNumber = 0;
 		this.ownedTasks = new HashSet<>();
 		this.planner = planner;
@@ -46,16 +47,46 @@ public class Bidder {
 			System.out.println("Warning plan with new task (" + fullPlanCost + ") was cheaper than plan with only owned tasks (" + planCost + ")");
 		}
 		
-		double respectiveDiff = (fullPlanCost - planCost) + (fullPlanFutureCostEstimation - planFutureCostEstimation);
-		double bid = greedFactor * Math.max(respectiveDiff, 0); 
+		double respectiveDiff = Math.abs(fullPlanCost - planCost) + (fullPlanFutureCostEstimation - planFutureCostEstimation);
+		double bid = greedFactor * Math.max(respectiveDiff, 0);
 		
-		return (long) Math.ceil(bid);
+		long finalBid = (long) Math.ceil(bid);
+		lastBid = finalBid;
+		
+		return finalBid;
 	}
 
 	public void acknowledgeBidResult(Task previous, int winner, Long[] bids) {
 		if (winner == agentId) {
 			ownedTasks.add(previous);
 		}
+		
+		long minBid = Long.MAX_VALUE;
+		
+		for (int i=0; i < bids.length; ++i) {
+			minBid = Math.min(bids[i], minBid);
+		}
+		
+		if (minBid != lastBid) {
+			double bidRatio = ((double) minBid) / ((double) lastBid);
+			greedFactor = (bidRatio - 0.01) * greedFactor;
+		} else {
+			/*long secondMinBid = Long.MAX_VALUE;
+			for (int i=0; i < bids.length; ++i) {
+				if (bids[i] != minBid) {
+					secondMinBid = Math.min(bids[i], secondMinBid);
+				}
+			}
+			
+			double bidRatio = ((double) secondMinBid) / ((double) lastBid);
+			greedFactor = (bidRatio - 0.01) * greedFactor;*/
+			greedFactor = greedFactor * 1.1;
+		}	
+		
+		// Makes sure we do not have a deficit greed factor
+		greedFactor = Math.max(1, greedFactor);
+		greedFactor = Math.min(1.5, greedFactor);
+		System.out.println("Greed factor " + greedFactor);
 
 		roundNumber += 1;
 	}

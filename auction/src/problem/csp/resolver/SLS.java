@@ -40,8 +40,6 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 		}
 			
 		Assignment<B, V> initialSolution = initialResolver.resolve(problem);
-		
-		System.out.println("Initial solution\n" + initialSolution);
 
 		Assignment<B, V> currentSolution = initialSolution;
 		int currentDepth = 0;
@@ -49,7 +47,6 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 		
 		
 		while (lastDiffs.average() > convergenceCriteria && timeout - currentTime > 500) {
-			System.out.println("SLS current depth " + currentDepth);
 			// ChooseNeighbours()
 			Set<Assignment<B, V>> newAssignments = disrupter.disrupte(currentSolution);
 			// LocalChoice() - part 1
@@ -65,28 +62,6 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 		}
 
 		return currentSolution;
-	}
-
-	private Assignment<B, V> recursiveResolution(ConstraintSatisfaction<B, V> problem, int depth,
-			Assignment<B, V> currentSolution) {
-		System.out.println("SLS depth: " + depth);
-		if (depth == this.depth) {
-			return currentSolution;
-		} else {
-			// ChooseNeighbours()
-			Set<Assignment<B, V>> newAssignments = disrupter.disrupte(currentSolution);
-			// LocalChoice() - part 1
-			Assignment<B, V> newAssignment = chooseBest(newAssignments, problem);
-
-			// TODO WARNING should we check that the new assignment is better than the
-			// previous one ?
-			// LocalChoice() - part 2 (stochasticity)
-			if (AuctionTemplate.RANDOM.nextDouble() <= stochasticFactor) {
-				return recursiveResolution(problem, depth + 1, newAssignment);
-			} else {
-				return recursiveResolution(problem, depth + 1, currentSolution);
-			}
-		}
 	}
 
 	private Assignment<B, V> chooseBest(Set<Assignment<B, V>> assignments,

@@ -89,7 +89,6 @@ public class AuctionTemplate implements AuctionBehavior {
 		RANDOM = new Random(seed);
 
 		// this code is used to get the timeouts
-		System.out.println("IN");
 		LogistSettings ls = null;
 		try {
 			ls = Parsers.parseSettings("./config/settings_auction.xml");

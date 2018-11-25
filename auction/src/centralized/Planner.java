@@ -174,7 +174,6 @@ public final class Planner {
 				timeout);
 
 		Assignment<PDPVariable, TaskValue> solution = resolver.resolve(pdpConstraintSatisfaction);
-		System.out.println("Solution " + solution);
 		double planCost = pdpObjectiveFunction.valueAt(solution);
 		double expectedCostAt = expectedCostFor(solution);
 		Tuple<Double, Double> costTuple = new Tuple<>(planCost, expectedCostAt);
