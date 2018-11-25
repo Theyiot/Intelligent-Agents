@@ -76,69 +76,10 @@ public class ReactiveTemplate implements ReactiveBehavior {
 		ValueIteration valueIterationAlgo = new ValueIteration(states, actions, new Transitioner(states, cities), -10, discount);
 		valueIterationAlgo.valueIteration();
 		
-		// Create mapping from city to states. Required to link our model to the logist interface
-		/*cityToEmptyState = new HashMap<>();
-		cityToTaskState = new HashMap<>();
-		
-		for (State state: states) {
-			if (state.getType() == EMPTY) {
-				EmptyState cState = (EmptyState) state;
-				cityToEmptyState.put(cState.getStateLocation(), cState);
-			} else if(state.getType() == NON_EMPTY) {
-				TaskState cState = (TaskState) state;
-				
-				if (cityToTaskState.containsKey(cState.getStateLocation())) {
-					cityToTaskState.get(cState.getStateLocation()).put(cState.getToCity(), cState);
-				} else {
-					Map<City, TaskState> destinationToState = new HashMap<City, TaskState>();
-					destinationToState.put(cState.getToCity(), cState);
-					cityToTaskState.put(cState.getStateLocation(), destinationToState);
-				}
-			}
-		}*/
-		
 		this.random = new Random();
 		this.pPickup = discount;
 		this.numActions = 0;
 		this.myAgent = agent;
-	}
-
-	@Override
-	public Action act(Vehicle vehicle, Task availableTask) {
-		Action action = null;
-		
-		State currentState = null;
-		
-		/*if (availableTask == null) {
-			currentState = cityToEmptyState.get(vehicle.getCurrentCity());
-		} else {
-			if (!cityToTaskState.containsKey(vehicle.getCurrentCity())) {
-				throw new IllegalStateException("1rst stage failure");
-				
-			} else if (!cityToTaskState.get(vehicle.getCurrentCity()).containsKey(availableTask.deliveryCity)) {
-				throw new IllegalStateException("2nd stage failure");
-				
-			}
-			currentState = cityToTaskState.get(vehicle.getCurrentCity()).get(availableTask.deliveryCity);
-		}*/
-		
-		TaskAction bestAction = currentState.getBestAction();
-		
-		/*if (bestAction.type() == DELIVER) {
-			action = new Pickup(availableTask);
-		} else if (bestAction.type() == MOVE) {
-			MoveAction mAction = (MoveAction) bestAction;
-			action = new Move(mAction.getDestination());
-		} else {
-			throw new IllegalStateException();
-		}*/
-		
-		if (numActions >= 1) {
-			System.out.println("The total profit after "+numActions+" actions is "+myAgent.getTotalProfit()+" (average profit: "+(myAgent.getTotalProfit() / (double)numActions)+")");
-		}
-		numActions++;
-		
-		return action;
 	}
 
 	private List<List<Tuple<Vehicle, City>>> generateAllStates(List<Vehicle> vehicles, List<City> cities) {

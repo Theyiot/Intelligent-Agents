@@ -1,8 +1,5 @@
 package reactive.world_representation.state;
 
-import static reactive.world_representation.action.ActionType.DELIVER;
-import static reactive.world_representation.action.ActionType.PICKUP;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -53,9 +50,7 @@ public class State {
 	public boolean isLegal(TaskAction action) {
 		for(Tuple<Vehicle, City> tuple : tuples) {
 			if(tuple.getLeft().equals(action.getVehicle())) {
-				if (action.getType() == PICKUP || action.getType() == DELIVER) {
-					return true;
-				}
+				return true;
 			}
 		}
 		throw new IllegalStateException("Want to do action for an unknown vehicle");

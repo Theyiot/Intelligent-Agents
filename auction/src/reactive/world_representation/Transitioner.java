@@ -15,33 +15,26 @@ import reactive.world_representation.state.State;
 
 public class Transitioner {
 	private final List<State> states;
-	private final List<City> cities;
 	
-	public Transitioner(List<State> states, List<City> cities) {
+	public Transitioner(List<State> states) {
 		this.states = new ArrayList<> (states);
-		this.cities = new ArrayList<> (cities);
 	}
 	
 	public Tuple<Double, Set<State>> transitions(State state, TaskAction action) {
 		Set<State> newStates = new HashSet<> ();
 
-		if (action.getType() == ActionType.PICKUP || action.getType() == ActionType.DELIVER) {
-			AuctionedTask task = state.getAuctionedTask();
-			Vehicle vehicle = action.getVehicle();
-			List<Tuple<Vehicle, City>> newTuples = state.getTuples();
-			for(int i = 0 ; i < newTuples.size() ; i++) {
-				if(newTuples.get(i).getLeft().equals(vehicle)) {
-					City newCity = action.getType() == ActionType.PICKUP ? task.getFromCity() : task.getToCity();
-					newTuples.set(i, new Tuple<> (vehicle, newCity));
-				}
+		AuctionedTask task = state.getAuctionedTask();
+		Vehicle vehicle = action.getVehicle();
+		List<Tuple<Vehicle, City>> newTuples = state.getTuples();
+		for(int i = 0 ; i < newTuples.size() ; i++) {
+			if(newTuples.get(i).getLeft().equals(vehicle)) {
+				newTuples.set(i, new Tuple<> (vehicle, task.getToCity()));
 			}
-			for(State s : states) {
-				if(s.getTuples().equals(newTuples)) {
-					newStates.add(s);
-				}
+		}
+		for(State s : states) {
+			if(s.getTuples().equals(newTuples)) {
+				newStates.add(s);
 			}
-		} else {
-			throw new IllegalStateException("Switch case is invalid");
 		}
 
 		return new Tuple<> (reward(state, action), newStates);
@@ -50,7 +43,8 @@ public class Transitioner {
 	public static Double reward(State state, TaskAction action) {
 		for(Tuple<Vehicle, City> tuple: state.getTuples()) {
 			if(tuple.getLeft().equals(action.getVehicle())) {
-				return tuple.getRight().distanceTo(tuple.getRight());
+				AuctionedTask task = state.getAuctionedTask();
+				return tuple.getRight().distanceTo(task.getFromCity()) + task.getFromCity().distanceTo(task.getToCity());
 			}
 		}
 		throw new IllegalStateException("Trying to find reward of an unknown vehicle");
