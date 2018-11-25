@@ -38,6 +38,7 @@ import problem.csp.primitive.ObjectiveFunction;
 import problem.csp.resolver.CSPResolver;
 import problem.csp.resolver.SLS;
 import reactive.PartialStateEvaluator;
+import reactive.TrivialPartialStateEvaluator;
 import reactive.algorithm.ValueIteration;
 import reactive.world_representation.Transitioner;
 import reactive.world_representation.action.ActionType;
@@ -81,7 +82,8 @@ public class AuctionTemplate implements AuctionBehavior {
 		this.vehicles = agent.vehicles();
 
 		long seed = agent.id();
-		PartialStateEvaluator evaluator = new PartialStateEvaluator(valueIteration(0.9), distribution, topology.cities().size());
+		//PartialStateEvaluator evaluator = new PartialStateEvaluator(valueIteration(0.9), distribution, topology.cities().size());
+		PartialStateEvaluator evaluator = new TrivialPartialStateEvaluator(distribution);
 		this.planner = new Planner(vehicles, evaluator);
 		this.bidder = new Bidder(planner, agent.id());
 		ownedTasks = new HashSet<>();
