@@ -44,7 +44,7 @@ public class Bidder {
 		List<Plan> plan = planResult.getRight();
 		
 		if (fullPlanCost < planCost) {
-			System.out.println("Warning plan with new task (" + fullPlanCost + ") was cheaper than plan with only owned tasks (" + planCost + ")");
+			//System.out.println("Warning plan with new task (" + fullPlanCost + ") was cheaper than plan with only owned tasks (" + planCost + ")");
 		}
 		
 		//double respectiveDiff = fullPlanCost - planCost + (fullPlanFutureCostEstimation - planFutureCostEstimation);

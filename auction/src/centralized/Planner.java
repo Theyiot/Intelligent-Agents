@@ -96,7 +96,7 @@ public final class Planner {
 			}
 			plansVariables.addAll(planVariables);
 		}
-
+		
 		// Constraints creation
 		PDPConstraintFactory constraintFactory = new PDPConstraintFactory(2 * tasks.size(), vehicles.size());
 		Set<Constraint<PDPVariable, TaskValue>> constraints = constraintFactory.getAllConstraints();
@@ -149,7 +149,7 @@ public final class Planner {
 					ConstraintSatisfaction<PDPVariable, TaskValue> cspProblem) {
 				List<PDPVariable> cspVariables = cspProblem.getVariables();
 				List<List<PDPVariable.RealizedVariable>> realizations = new ArrayList<>();
-
+				
 				for (int i = 0; i < vehicleCount; ++i) {
 					realizations.add(new ArrayList<PDPVariable.RealizedVariable>());
 				}
@@ -163,10 +163,10 @@ public final class Planner {
 				for (Task task : tasksSet) {
 					int vehicleChoice = AuctionTemplate.RANDOM.nextInt(vehicleCount);
 					realizations.get(vehicleChoice)
-							.add(cspVariables.get(vehicleCount * vehicleChoice + filledCount.get(vehicleChoice))
+							.add(cspVariables.get(2 * tasksSet.size() * vehicleChoice + filledCount.get(vehicleChoice))
 									.realize(new TaskValue(task, ValueType.PICKUP)));
 					realizations.get(vehicleChoice)
-							.add(cspVariables.get(vehicleCount * vehicleChoice + filledCount.get(vehicleChoice))
+							.add(cspVariables.get(2 * tasksSet.size() * vehicleChoice + filledCount.get(vehicleChoice))
 									.realize(new TaskValue(task, ValueType.DELIVER)));
 
 					filledCount.put(vehicleChoice, filledCount.get(vehicleChoice) + 2);
@@ -176,7 +176,7 @@ public final class Planner {
 				for (int vehicleIndex : filledCount.keySet()) {
 					for (int i = filledCount.get(vehicleIndex); i < 2 * tasksSet.size(); ++i) {
 						realizations.get(vehicleIndex)
-								.add(cspVariables.get(vehicleCount * vehicleIndex + i).realize(new TaskValue()));
+								.add(cspVariables.get(2 * tasksSet.size() * vehicleIndex + i).realize(new TaskValue()));
 					}
 				}
 

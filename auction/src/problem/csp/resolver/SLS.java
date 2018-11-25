@@ -46,7 +46,7 @@ public final class SLS<B extends Variable<V>, V extends Value> implements CSPRes
 		long currentTime = System.currentTimeMillis();
 		
 		
-		while (lastDiffs.average() > convergenceCriteria && timeout - currentTime > 500) {
+		while (lastDiffs.average() > convergenceCriteria && timeout - currentTime > 1500) {
 			// ChooseNeighbours()
 			Set<Assignment<B, V>> newAssignments = disrupter.disrupte(currentSolution);
 			
