@@ -3,16 +3,13 @@ package centralized;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import centralized.disrupter.CombineDisrupter;
 import centralized.value.TaskValue;
 import centralized.value.TaskValue.ValueType;
-import logist.plan.Action;
 import logist.plan.Plan;
 import logist.simulation.Vehicle;
 import logist.task.Task;
@@ -38,6 +35,25 @@ public final class Planner {
 	}
 
 	public Tuple<Tuple<Double, Double>, List<Plan>> plan(Set<Task> tasks, final int roundNumber, long timeout) {
+		// Deal with empty task set case
+		if (tasks.isEmpty()) {
+			List<Plan> emptyPlans = new ArrayList<>();
+			
+			for (int i=0; i < vehicles.size(); ++i) {
+				emptyPlans.add(Plan.EMPTY);
+			}
+			
+			List<City> positionState = new ArrayList<>(vehicles.size());
+			for (Vehicle vehicle: vehicles) {
+				positionState.add(vehicle.getCurrentCity());
+			}
+			
+			double expectedPlanCost = evaluator.valueAt(positionState);
+			double planCost = 0.0;
+			Tuple<Double, Double> costTuple = new Tuple<>(planCost, expectedPlanCost);
+			return new Tuple<Tuple<Double, Double>, List<Plan>>(costTuple, emptyPlans);
+		}
+		
 		final List<Vehicle> vehicleList = new ArrayList<>(vehicles);
 
 		final List<City> initialCities = new ArrayList<>();
@@ -158,6 +174,7 @@ public final class Planner {
 				timeout);
 
 		Assignment<PDPVariable, TaskValue> solution = resolver.resolve(pdpConstraintSatisfaction);
+		System.out.println("Solution " + solution);
 		double planCost = pdpObjectiveFunction.valueAt(solution);
 		double expectedCostAt = expectedCostFor(solution);
 		Tuple<Double, Double> costTuple = new Tuple<>(planCost, expectedCostAt);
