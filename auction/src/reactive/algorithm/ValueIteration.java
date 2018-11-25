@@ -60,24 +60,24 @@ public final class ValueIteration {
 	
 	private Tuple<TaskAction, Double> stateIteration(State state) {
 		
-		double maxQSA = Double.MIN_VALUE;
+		double minQSA = Double.MAX_VALUE;
 		TaskAction bestAction = null;
 		
 		for(TaskAction action: actions) {
 			if (state.isLegal(action)) {
 				double qSA = computeQSA(state, action);
 				
-				if (qSA > maxQSA) {
-					maxQSA = qSA;
+				if (qSA < minQSA) {
+					minQSA = qSA;
 					bestAction = action;
 				}
 			}
 		}
 		
 		state.setBestAction(bestAction);
-		state.setV(maxQSA);
+		state.setV(minQSA);
 		
-		return new Tuple<TaskAction, Double>(bestAction, maxQSA);
+		return new Tuple<TaskAction, Double>(bestAction, minQSA);
 	}
 	
 	private double computeQSA(State state, TaskAction action) {

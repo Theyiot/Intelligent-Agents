@@ -33,8 +33,24 @@ public final class Planner {
 		this.vehicles = vehicles;
 		this.evaluator = evaluator;
 	}
+	
+	public Tuple<Tuple<Double, Double>, List<Plan>> plan(Set<Task> tasks, final int roundNumber, long timeout, int trial) {
+		Tuple<Tuple<Double, Double>, List<Plan>> bestPlan = null;
+		
+		for (int i=0; i < trial; ++i) {
+			Tuple<Tuple<Double, Double>, List<Plan>> newPlan = planOnce(tasks, roundNumber, timeout);
+			
+			if (bestPlan == null) {
+				bestPlan = newPlan;
+			} else if (bestPlan.getLeft().getLeft() > newPlan.getLeft().getLeft()) {
+				bestPlan = newPlan;
+			}
+		}
+		
+		return bestPlan;
+	}
 
-	public Tuple<Tuple<Double, Double>, List<Plan>> plan(Set<Task> tasks, final int roundNumber, long timeout) {
+	public Tuple<Tuple<Double, Double>, List<Plan>> planOnce(Set<Task> tasks, final int roundNumber, long timeout) {
 		// Deal with empty task set case
 		if (tasks.isEmpty()) {
 			List<Plan> emptyPlans = new ArrayList<>();
@@ -187,7 +203,7 @@ public final class Planner {
 		if (roundNumber == -1) {
 			return 0;
 		} else {
-			return 0;
+			return 0; 
 		}
 	}
 

@@ -21,6 +21,10 @@ public final class ConstraintSatisfaction<B extends Variable<V>, V extends Value
 		this.objective = objective;
 	}
 	
+	public ObjectiveFunction<B, V> getObjectiveFunction() {
+		return objective;
+	}
+	
 	public List<B> getVariables() {
 		return X;
 	}

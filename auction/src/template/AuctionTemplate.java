@@ -81,7 +81,7 @@ public class AuctionTemplate implements AuctionBehavior {
 		this.vehicles = agent.vehicles();
 
 		long seed = agent.id();
-		PartialStateEvaluator evaluator = new PartialStateEvaluator(valueIteration(), distribution, topology.cities().size());
+		PartialStateEvaluator evaluator = new PartialStateEvaluator(valueIteration(0.9), distribution, topology.cities().size());
 		this.planner = new Planner(vehicles, evaluator);
 		this.bidder = new Bidder(planner, agent.id());
 		ownedTasks = new HashSet<>();
@@ -128,12 +128,12 @@ public class AuctionTemplate implements AuctionBehavior {
 		// Compute "best" plan with currently owned task (room for optimization here)
 		Set<Task> currentTasks = new HashSet<>(tasks);
 		// -1 convention for no future anticipation
-		Tuple<Tuple<Double, Double>, List<Plan>> optimizedPlan = planner.plan(currentTasks, -1, timeout);
+		Tuple<Tuple<Double, Double>, List<Plan>> optimizedPlan = planner.plan(currentTasks, -1, timeout, 300);
 	
 		return optimizedPlan.getRight();
 	}
 
-	private Set<State> valueIteration() {
+	private Set<State> valueIteration(double discount) {
 		
 		List<City> cities = topology.cities();
 		List<State> states = new ArrayList<>();
@@ -164,7 +164,7 @@ public class AuctionTemplate implements AuctionBehavior {
 
 		// Value iteration algorithm
 		ValueIteration valueIterationAlgo = new ValueIteration(states, actions, new Transitioner(states), 1e-10,
-				0.2);
+				discount);
 		valueIterationAlgo.valueIteration();
 		
 		return new HashSet<>(states);
